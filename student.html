@@ -3,55 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Học Sinh - Làm Bài (V8 An Toàn)</title>
+    <title>Học Sinh - Làm Bài Thi</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
     <style>
-        /* GIỮ NGUYÊN GIAO DIỆN A4 ĐẸP MẮT */
+        /* GIAO DIỆN NỀN XÁM (GIỐNG WORD) */
         body { font-family: 'Segoe UI', sans-serif; background: #e0e0e0; padding: 20px; margin: 0; }
-        .container { max-width: 1200px; width: 95%; margin: 0 auto; }
-        .header-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; }
+        .container { max-width: 1000px; width: 95%; margin: 0 auto; }
+        
+        /* HEADER */
+        .header-section { 
+            background: white; padding: 20px; border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; 
+        }
         select { width: 100%; padding: 12px; font-size: 1.1em; border: 2px solid #009688; border-radius: 5px; max-width: 500px;}
         
-        .post { background: white; padding: 30px 40px; margin-bottom: 30px; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .content { white-space: pre-wrap; font-family: 'Times New Roman', Times, serif; font-size: 14pt; line-height: 1.5; margin: 15px 0; text-align: justify; }
-        
-        .student-input-area { background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #ddd; margin-top: 20px; }
-        
-        /* CẤU TRÚC CÂU HỎI */
-        .question-row { display: flex; align-items: flex-start; margin-bottom: 15px; border-bottom: 1px dashed #eee; padding-bottom: 10px; flex-wrap: wrap; }
-        
-        /* Số thứ tự câu hỏi */
-        .q-label { 
-            width: 80px; font-weight: bold; color: #555; font-size: 0.9em; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            margin-right: 15px; background: #e0f2f1; border-radius: 4px; padding: 5px;
+        /* TỜ GIẤY ĐỀ BÀI */
+        .post { 
+            background: white; 
+            padding: 40px 50px; /* Lề rộng giống A4 */
+            margin-bottom: 40px; 
+            border-radius: 2px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
         }
-        .q-type-badge { font-size: 0.7em; text-transform: uppercase; color: #00796b; margin-top: 2px; }
-        
-        /* Bong bóng trắc nghiệm */
-        .bubble-group { display: flex; gap: 10px; align-items: center; padding-top: 5px; }
-        .option-btn { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #bbb; background: #fff; cursor: pointer; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #555; transition: 0.2s; }
-        .option-btn:hover { background: #f0f0f0; }
-        .option-btn.selected { background: #009688; color: white; border-color: #00796b; transform: scale(1.1); box-shadow: 0 2px 5px rgba(0,150,136,0.3); }
 
-        .input-fill { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; max-width: 300px; font-family: monospace; font-size: 1em; }
-        .input-essay { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; height: 60px; font-family: monospace; font-size: 1em;}
+        /* NỘI DUNG ĐỀ BÀI (QUAN TRỌNG: Cấu hình để hiển thị HTML đẹp) */
+        .content-display {
+            /* Reset các thuộc tính của Quill Editor để phù hợp trang đọc */
+            border: none !important;
+            padding: 0 !important;
+            font-family: 'Times New Roman', Times, serif !important; /* Font chuẩn Word */
+            font-size: 14pt !important;
+            line-height: 1.6 !important;
+            color: #000;
+            text-align: justify;
+        }
+        /* Sửa lỗi ảnh quá to nếu giáo viên paste ảnh */
+        .content-display img { max-width: 100%; height: auto; }
+
+        /* VÙNG NHẬP LIỆU CỦA HỌC SINH */
+        .student-input-area { 
+            background: #f8f9fa; 
+            padding: 25px; 
+            border-radius: 8px; 
+            border: 1px solid #ced4da; 
+            margin-top: 30px; 
+        }
         
-        input[type="text"].main-name { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #009688; border-radius: 4px; background: #e0f2f1; font-weight: bold; color: #004d40; }
+        .question-row { display: flex; align-items: flex-start; margin-bottom: 15px; border-bottom: 1px dashed #d1d8e0; padding-bottom: 15px; flex-wrap: wrap; }
         
-        button.submit-btn { background: #2980b9; color: white; border: none; font-weight: bold; cursor: pointer; padding: 15px; width: 100%; font-size: 1.1em; border-radius: 4px; margin-top: 20px; transition: 0.3s; }
-        button.submit-btn:hover { background: #2471a3; box-shadow: 0 4px 10px rgba(41, 128, 185, 0.3); }
-        button.submit-btn:disabled { background: #bdc3c7; cursor: not-allowed; box-shadow: none; }
+        /* Nhãn số câu */
+        .q-label { 
+            width: 70px; margin-right: 15px; 
+            background: #e9ecef; border-radius: 4px; padding: 5px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-weight: bold; color: #495057; font-size: 0.9em;
+        }
+        .q-type-badge { font-size: 0.7em; text-transform: uppercase; color: #009688; margin-top: 2px; }
+
+        /* Trắc nghiệm */
+        .bubble-group { display: flex; gap: 10px; align-items: center; padding-top: 5px; }
+        .option-btn { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #adb5bd; background: #fff; cursor: pointer; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #495057; transition: 0.2s; }
+        .option-btn:hover { background: #e9ecef; }
+        .option-btn.selected { background: #009688; color: white; border-color: #00796b; transform: scale(1.15); box-shadow: 0 2px 5px rgba(0,150,136,0.4); }
+
+        /* Input điền từ */
+        .input-fill { padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; width: 100%; max-width: 300px; font-family: monospace; font-size: 1.1em; color: #212529; }
+        .input-essay { padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; width: 100%; height: 70px; font-family: monospace; font-size: 1em; }
         
-        .result-box { margin-top: 20px; padding: 15px; background: #fffde7; border: 2px solid #ffb74d; border-radius: 8px; display: none; }
+        /* Tên học sinh */
+        input[type="text"].main-name { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #009688; border-radius: 4px; background: #e0f2f1; font-weight: bold; color: #004d40; font-size: 1em;}
+
+        button.submit-btn { background: #2980b9; color: white; border: none; font-weight: bold; cursor: pointer; padding: 15px; width: 100%; font-size: 1.1em; border-radius: 4px; margin-top: 20px; transition: 0.3s; box-shadow: 0 4px 6px rgba(41, 128, 185, 0.2); }
+        button.submit-btn:hover { background: #2471a3; transform: translateY(-2px); }
+        button.submit-btn:disabled { background: #95a5a6; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        .result-box { margin-top: 25px; padding: 20px; background: #fff9c4; border: 2px solid #ffca28; border-radius: 8px; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header-section">
-        <h2 style="color:#009688; margin:0 0 10px 0;"><i class="fas fa-graduation-cap"></i> PHÒNG THI TRỰC TUYẾN</h2>
-        <select id="class-select" onchange="loadAss()"><option value="">-- Đang tải dữ liệu... --</option></select>
+        <h2 style="color:#009688; margin:0 0 10px 0;"><i class="fas fa-file-signature"></i> PHÒNG THI TRỰC TUYẾN</h2>
+        <select id="class-select" onchange="loadAss()"><option value="">-- Đang tải dữ liệu lớp học... --</option></select>
     </div>
     <div id="ass-area"><p style="text-align:center; color:#777; margin-top:50px;">Vui lòng chọn lớp để tải đề thi.</p></div>
 </div>
@@ -60,7 +96,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-    // --- CẤU HÌNH FIREBASE ---
+    // --- CẤU HÌNH FIREBASE (Dùng chung với Teacher) ---
     const firebaseConfig = {
       apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE",
       authDomain: "lophoconl.firebaseapp.com",
@@ -74,7 +110,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Load Lớp
+    // 1. Tải danh sách lớp
     onValue(ref(db, 'classes'), snap => {
         const sel = document.getElementById('class-select');
         sel.innerHTML = '<option value="">-- Chọn lớp của em --</option>';
@@ -82,7 +118,7 @@
         if(d) Object.keys(d).forEach(k => sel.innerHTML += `<option value="${k}">${d[k].name}</option>`);
     });
 
-    // Load Bài tập
+    // 2. Tải bài tập (Hỗ trợ HTML Rich Text)
     window.loadAss = () => {
         const cid = document.getElementById('class-select').value;
         const area = document.getElementById('ass-area');
@@ -93,35 +129,30 @@
         onValue(ref(db, `assignments/${cid}`), snap => {
             area.innerHTML = "";
             const d = snap.val();
-            if(!d) return area.innerHTML = "<p style='text-align:center'>Chưa có bài tập nào trong lớp này.</p>";
+            if(!d) return area.innerHTML = "<p style='text-align:center'>Chưa có bài tập nào.</p>";
 
             Object.keys(d).reverse().forEach(assignmentID => {
                 const q = d[assignmentID];
                 
-                // Giải mã Key JSON của bài tập này
+                // Giải mã Key JSON
                 let keyMap = {};
                 try { keyMap = JSON.parse(q.correctAnswer); } catch(e) {}
                 const hasKey = Object.keys(keyMap).length > 0;
                 
-                // Mã hóa key để gắn vào nút nộp bài (để biết chấm theo đáp án nào)
                 const keyJsonSafe = hasKey ? encodeURIComponent(JSON.stringify(keyMap)) : "";
 
                 let inputsHTML = "";
                 if(hasKey) {
                     Object.keys(keyMap).sort((a,b)=>a-b).forEach(num => {
                         const info = keyMap[num];
-                        
-                        // XÁC ĐỊNH ID ĐỘC NHẤT CHO TỪNG CÂU HỎI
-                        // ID = "in" + ID_Bài_Tập + Số_Câu (VD: in-Njx123-1)
-                        // Điều này đảm bảo không bao giờ bị trùng lặp giữa các bài
                         const uniqueID = `in-${assignmentID}-${num}`;
                         const uniqueGroup = `grp-${assignmentID}-${num}`;
-
+                        
                         let inputControl = "";
-                        let labelType = "";
+                        let typeLabel = "";
 
                         if(info.type === 'mcq') {
-                            labelType = "Trắc nghiệm";
+                            typeLabel = "Trắc nghiệm";
                             inputControl = `
                                 <div class="bubble-group" id="${uniqueGroup}" data-val="">
                                     <div class="option-btn" onclick="selOpt('${uniqueGroup}', 'A')">A</div>
@@ -130,10 +161,10 @@
                                     <div class="option-btn" onclick="selOpt('${uniqueGroup}', 'D')">D</div>
                                 </div>`;
                         } else if(info.type === 'fill') {
-                            labelType = "Điền từ";
+                            typeLabel = "Điền từ";
                             inputControl = `<input type="text" class="input-fill" id="${uniqueID}" placeholder="Nhập đáp án..." autocomplete="off">`;
                         } else {
-                            labelType = "Tự luận";
+                            typeLabel = "Tự luận";
                             inputControl = `<textarea class="input-essay" id="${uniqueID}" placeholder="Viết câu trả lời..."></textarea>`;
                         }
 
@@ -141,27 +172,27 @@
                             <div class="question-row">
                                 <div class="q-label">
                                     <span>Câu ${num}</span>
-                                    <span class="q-type-badge">${labelType}</span>
+                                    <span class="q-type-badge">${typeLabel}</span>
                                 </div>
                                 <div style="flex:1">${inputControl}</div>
                             </div>
                         `;
                     });
                 } else {
-                    inputsHTML = "<p style='color:red; text-align:center;'>⚠ Bài này giáo viên chưa tạo phiếu trả lời.</p>";
+                    inputsHTML = "<p style='color:red; text-align:center'>Bài tập này chưa được cấu hình phiếu trả lời online.</p>";
                 }
 
-                // Render toàn bộ bài tập
                 area.innerHTML += `
                     <div class="post" id="post-${assignmentID}">
-                        <h3>${q.title}</h3>
-                        <div class="content">${q.content}</div>
+                        <h3 style="margin-top:0; color:#2c3e50; border-bottom:2px solid #eee; padding-bottom:15px;">${q.title}</h3>
+                        
+                        <div class="content-display ql-editor">${q.content}</div>
                         
                         <div class="student-input-area">
-                            <label><b><i class="fas fa-user"></i> Họ và tên:</b></label>
-                            <input type="text" class="main-name" id="name-${assignmentID}" placeholder="Nhập tên em vào đây...">
+                            <label><b><i class="fas fa-user-circle"></i> Họ và tên của em:</b></label>
+                            <input type="text" class="main-name" id="name-${assignmentID}" placeholder="Nhập tên đầy đủ...">
                             
-                            <hr style="margin: 20px 0; border:0; border-top:1px solid #ddd;">
+                            <hr style="margin:20px 0; border:0; border-top:1px solid #ddd;">
                             
                             ${inputsHTML}
                             
@@ -176,26 +207,20 @@
         });
     }
 
-    // Xử lý chọn trắc nghiệm (Đảm bảo chỉ tác động vào đúng nhóm câu hỏi đó)
+    // Chọn đáp án trắc nghiệm
     window.selOpt = (groupID, val) => {
         const group = document.getElementById(groupID);
         const btns = group.getElementsByClassName('option-btn');
-        // Reset màu nút trong nhóm này
         for(let btn of btns) btn.classList.remove('selected');
-        // Tô màu nút vừa chọn
         for(let btn of btns) if(btn.innerText === val) btn.classList.add('selected');
-        // Lưu giá trị vào data-val của nhóm
         group.setAttribute('data-val', val);
     }
 
     // Nộp bài
-    window.submit = (cid, aid) => { // aid chính là Assignment ID (Mã bài tập)
+    window.submit = (cid, aid) => {
         const nameInput = document.getElementById(`name-${aid}`);
         const name = nameInput.value.trim();
-        if(!name) {
-            nameInput.focus();
-            return alert("Em ơi, nhớ ghi tên trước khi nộp nhé!");
-        }
+        if(!name) { nameInput.focus(); return alert("Vui lòng nhập họ tên!"); }
 
         const btn = document.querySelector(`#post-${aid} .submit-btn`);
         const keyJson = btn.getAttribute('data-key');
@@ -206,22 +231,18 @@
         let answersToSave = "";
         let correctCount = 0;
         let totalCount = 0;
-        let detailsHTML = "<b>📝 Chi tiết kết quả:</b><br>";
+        let detailsHTML = "<b>📋 Chi tiết kết quả:</b><br>";
 
-        // Duyệt từng câu hỏi trong Key của bài tập này
         Object.keys(keyMap).sort((a,b)=>a-b).forEach(num => {
             const info = keyMap[num];
             let studentAns = "";
 
-            // Lấy đáp án dựa trên ID độc nhất
             if(info.type === 'mcq') {
-                const uniqueGroup = `grp-${aid}-${num}`;
-                const group = document.getElementById(uniqueGroup);
-                studentAns = group.getAttribute('data-val') || "?"; // Nếu chưa chọn thì là ?
+                const grp = document.getElementById(`grp-${aid}-${num}`);
+                studentAns = grp.getAttribute('data-val') || "?";
             } else {
-                const uniqueID = `in-${aid}-${num}`;
-                const input = document.getElementById(uniqueID);
-                studentAns = input.value.trim() || "(bỏ trống)";
+                const inp = document.getElementById(`in-${aid}-${num}`);
+                studentAns = inp.value.trim() || "(trống)";
             }
 
             // Chấm điểm
@@ -230,15 +251,12 @@
                 isCorrect = true;
                 if(info.type !== 'essay') correctCount++;
             }
-
             if(info.type !== 'essay') totalCount++;
             
-            // Lưu chuỗi kết quả
             answersToSave += `${num}. ${studentAns} | `;
 
-            // Tạo thông báo chi tiết
             const color = isCorrect ? '#2e7d32' : '#c62828';
-            const icon = isCorrect ? '<i class="fas fa-check"></i>' : '<i class="fas fa-times"></i>';
+            const icon = isCorrect ? '✔' : '✖';
             
             if(info.type === 'essay') {
                 detailsHTML += `<div style="margin-top:8px; border-bottom:1px solid #eee; padding-bottom:5px;">
@@ -255,16 +273,10 @@
         const scoreText = `${correctCount}/${totalCount}`;
         const percent = totalCount > 0 ? Math.round((correctCount/totalCount)*100) : 0;
 
-        // Gửi lên Firebase
         push(ref(db, `answers/${cid}/${aid}`), {
-            name: name,
-            answer: answersToSave,
-            score: scoreText,
-            percent: percent,
-            timestamp: Date.now()
+            name: name, answer: answersToSave, score: scoreText, percent: percent, timestamp: Date.now()
         });
 
-        // Hiện kết quả tại chỗ
         const resBox = document.getElementById(`res-${aid}`);
         resBox.style.display = "block";
         resBox.innerHTML = `
@@ -275,10 +287,9 @@
             <div style="background:white; padding:15px; max-height:300px; overflow-y:auto; border:1px solid #ddd; border-radius:4px;">${detailsHTML}</div>
         `;
         
-        // Khóa bài sau khi nộp
         btn.disabled = true;
         btn.innerHTML = "<i class='fas fa-lock'></i> ĐÃ NỘP BÀI";
-        btn.style.background = "#7f8c8d";
+        btn.style.background = "#95a5a6";
     }
 </script>
 </body>
