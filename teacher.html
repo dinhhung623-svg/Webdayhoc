@@ -3,90 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giáo Viên - Quản Lý Lớp</title>
+    <title>Giáo Viên - Tạo Trắc Nghiệm</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; margin: 0; background: #f0f2f5; }
-        
-        /* SIDEBAR */
-        .sidebar { width: 280px; background: #2c3e50; color: white; display: flex; flex-direction: column; border-right: 1px solid #ddd; }
-        .sidebar-header { padding: 20px; background: #1a252f; border-bottom: 1px solid #34495e; }
-        .class-item { padding: 12px; margin: 5px 10px; background: #34495e; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;}
-        .class-item:hover, .class-item.active { background: #16a085; }
-        .btn-icon { background: none; border: none; color: #fff; cursor: pointer; opacity: 0.7; }
-        .btn-icon:hover { opacity: 1; color: #f1c40f; }
-        
-        /* MAIN CONTENT */
+        .sidebar { width: 280px; background: #2c3e50; color: white; display: flex; flex-direction: column; }
+        .class-item { padding: 12px; margin: 5px; background: #34495e; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between; }
+        .class-item.active { background: #16a085; }
         .main-content { flex: 1; padding: 30px; overflow-y: auto; }
+        .editor-box { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        input, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn-primary { background: #2980b9; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px;}
         .hidden { display: none !important; }
         
-        .editor-box { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
-        input, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn-primary { background: #2980b9; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px;}
-
-        /* BÀI TẬP CARD */
-        .assignment-card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; border-left: 5px solid #bdc3c7; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .content-view { white-space: pre-wrap; background: #f8f9fa; padding: 10px; border: 1px dashed #ced4da; margin: 10px 0; font-family: 'Consolas', monospace; font-size: 0.9em; }
-        .key-view { background: #e8f8f5; color: #27ae60; padding: 8px; font-weight: bold; font-family: monospace; border-radius: 4px; font-size: 0.9em; }
-
-        /* BẢNG ĐIỂM HỌC SINH */
-        .submission-area { margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; display: none; }
-        .student-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
-        .student-table th { background: #f1f1f1; text-align: left; padding: 8px; border-bottom: 2px solid #ddd; }
-        .student-table td { border-bottom: 1px solid #eee; padding: 8px; vertical-align: top; }
-        .score-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-weight: bold; color: white; background: #95a5a6; font-size: 0.85em; }
-        .score-high { background: #27ae60; }
-        .score-med { background: #f39c12; }
-        .score-low { background: #e74c3c; }
-        
-        .toggle-btn { background: #ecf0f1; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; color: #2c3e50; font-weight: 500; font-size: 0.9em; display: inline-flex; align-items: center; gap: 5px; }
-        .toggle-btn:hover { background: #bdc3c7; }
+        /* Giao diện xem lại bài */
+        .assignment-card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; border-left: 5px solid #2980b9; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <div class="sidebar-header">
-        <h3 style="margin:0"><i class="fas fa-chalkboard-teacher"></i> Giáo Viên</h3>
-    </div>
-    <div id="class-list" style="flex:1; overflow-y:auto; padding-top:10px;"></div>
-    <button onclick="addClass()" style="padding:15px; background:#e67e22; border:none; color:white; font-weight:bold; cursor:pointer;">+ Thêm Lớp Mới</button>
+    <div style="padding:20px; background:#1a252f; border-bottom:1px solid #34495e;"><h3><i class="fas fa-chalkboard-teacher"></i> Giáo Viên</h3></div>
+    <div id="class-list" style="padding:10px;"></div>
+    <button onclick="addClass()" style="width:100%; padding:15px; background:#e67e22; border:none; color:white; font-weight:bold; cursor:pointer;">+ Thêm Lớp</button>
 </div>
 
 <div class="main-content">
     <div id="welcome" style="text-align:center; margin-top:100px; color:#7f8c8d;">
-        <i class="fas fa-school" style="font-size:4em; margin-bottom:20px;"></i>
-        <h2>Chào thầy/cô!</h2>
-        <p>Chọn lớp bên trái để quản lý và xem điểm.</p>
+        <i class="fas fa-school" style="font-size:4em;"></i><h2>Chọn lớp để bắt đầu</h2>
     </div>
 
     <div id="manager" class="hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 id="class-name" style="color:#2c3e50; margin:0;"></h2>
-            <span style="font-size:0.9em; color:#7f8c8d"><i class="fas fa-circle" style="color:#2ecc71; font-size:0.6em"></i> Live Mode</span>
-        </div>
-        <hr style="border:0; border-top:1px solid #ddd; margin: 20px 0;">
-
+        <h2 id="class-name" style="color:#2c3e50;"></h2>
+        
         <div class="editor-box">
-            <h3 style="margin-top:0; color:#2980b9;"><i class="fas fa-edit"></i> Đăng Bài Tập</h3>
-            <input type="text" id="a-title" placeholder="Tiêu đề (VD: Unit 8 - Kiểm tra 15 phút)">
-            <label><b>Nội dung câu hỏi:</b></label>
-            <textarea id="a-content" rows="5" placeholder="Copy câu hỏi từ Word dán vào đây..."></textarea>
-            <label><b>🔑 Đáp án (để chấm tự động):</b></label>
-            <textarea id="a-key" rows="1" placeholder="VD: 1A 2B 3C 4D..."></textarea>
+            <h3 style="margin-top:0; color:#2980b9;">📝 Soạn Trắc Nghiệm</h3>
+            <input type="text" id="a-title" placeholder="Tiêu đề (VD: Unit 1 - Test)">
+            
+            <label><b>1. Nội dung đề bài (Copy từ Word):</b></label>
+            <textarea id="a-content" rows="6" placeholder="Dán nội dung câu hỏi vào đây..."></textarea>
+            
+            <label style="color:#c0392b;"><b>2. Đáp án đúng (BẮT BUỘC):</b></label>
+            <textarea id="a-key" rows="2" placeholder="Nhập đáp án để máy tạo nút bấm cho HS. VD: 1A 2B 3C 4D..."></textarea>
+            <small><i>💡 Máy sẽ đếm số lượng đáp án ở đây để tạo ra bấy nhiêu dòng trắc nghiệm cho học sinh.</i></small>
+
             <button class="btn-primary" onclick="addAssignment()">Đăng Bài</button>
         </div>
 
-        <h3>📚 Danh Sách Bài Tập & Kết Quả</h3>
-        <div id="list">Loading...</div>
+        <h3>📚 Danh sách bài tập:</h3>
+        <div id="list">Đang tải...</div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-    // --- CẤU HÌNH ---
     const firebaseConfig = {
       apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE",
       authDomain: "lophoconl.firebaseapp.com",
@@ -101,31 +73,15 @@
     const db = getDatabase(app);
     let curClass = null;
 
-    // --- LOGIC LỚP HỌC ---
     window.addClass = () => { const n = prompt("Tên lớp:"); if(n) push(ref(db, 'classes'), {name: n}); }
     
-    window.delClass = (e, id) => { 
-        e.stopPropagation(); 
-        if(confirm("CẢNH BÁO: Xóa lớp sẽ xóa hết bài tập và điểm số!\n\nBạn chắc chắn chứ?")) { 
-            remove(ref(db, `classes/${id}`)); remove(ref(db, `assignments/${id}`)); remove(ref(db, `answers/${id}`)); 
-            if(curClass===id) location.reload(); 
-        }
-    }
-    
-    window.editClass = (e, id, old) => { e.stopPropagation(); const n = prompt("Tên mới:", old); if(n) update(ref(db, `classes/${id}`), {name: n}); }
-
+    // Tải danh sách lớp
     onValue(ref(db, 'classes'), snap => {
-        document.getElementById('class-list').innerHTML = "";
+        const list = document.getElementById('class-list');
+        list.innerHTML = "";
         const data = snap.val();
         if(data) Object.keys(data).forEach(k => {
-            document.getElementById('class-list').innerHTML += `
-                <div class="class-item ${curClass===k?'active':''}" onclick="selClass('${k}', '${data[k].name}')">
-                    <span style="font-weight:500">${data[k].name}</span>
-                    <div>
-                        <button class="btn-icon" onclick="editClass(event, '${k}', '${data[k].name}')" title="Sửa tên"><i class="fas fa-pen"></i></button>
-                        <button class="btn-icon" onclick="delClass(event, '${k}')" title="Xóa lớp" style="color:#ff6b6b"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>`;
+            list.innerHTML += `<div class="class-item" onclick="selClass('${k}', '${data[k].name}')"><span>${data[k].name}</span> <i class="fas fa-trash" onclick="delClass(event,'${k}')"></i></div>`;
         });
     });
 
@@ -135,21 +91,25 @@
         document.getElementById('manager').classList.remove('hidden');
         document.getElementById('class-name').innerText = n;
         loadAss(k);
-        const items = document.querySelectorAll('.class-item');
-        items.forEach(i => i.classList.remove('active'));
     }
+    
+    window.delClass = (e, k) => { e.stopPropagation(); if(confirm("Xóa lớp này?")) remove(ref(db, `classes/${k}`)); }
 
-    // --- LOGIC BÀI TẬP ---
     window.addAssignment = () => {
         if(!curClass) return alert("Chọn lớp trước!");
         const t = document.getElementById('a-title').value;
         const c = document.getElementById('a-content').value;
         const k = document.getElementById('a-key').value;
-        if(t && c) {
-            push(ref(db, `assignments/${curClass}`), { title: t, content: c, correctAnswer: k, timestamp: Date.now() });
+
+        if(t && c && k) {
+            push(ref(db, `assignments/${curClass}`), {
+                title: t, content: c, correctAnswer: k, timestamp: Date.now()
+            });
             alert("Đã đăng!");
-            document.getElementById('a-title').value=""; document.getElementById('a-content').value=""; document.getElementById('a-key').value="";
-        } else alert("Thiếu tiêu đề hoặc nội dung!");
+            document.getElementById('a-title').value="";
+            document.getElementById('a-content').value="";
+            document.getElementById('a-key').value="";
+        } else alert("Vui lòng nhập đủ Tiêu đề, Nội dung và Đáp án!");
     }
 
     window.delAss = (id) => { if(confirm("Xóa bài này?")) remove(ref(db, `assignments/${curClass}/${id}`)); }
@@ -159,92 +119,18 @@
             const list = document.getElementById('list');
             list.innerHTML = "";
             const d = snap.val();
-            if(!d) return list.innerHTML = "<p style='text-align:center; color:#999'>Lớp này chưa có bài nào.</p>";
+            if(!d) return list.innerHTML = "Chưa có bài tập.";
             
             Object.keys(d).reverse().forEach(k => {
                 const i = d[k];
-                const keyDisplay = i.correctAnswer ? `<div class="key-view"><i class="fas fa-key"></i> Key: ${i.correctAnswer}</div>` : '';
-                
-                // Tạo div chứa bài làm của học sinh (mặc định ẩn)
                 list.innerHTML += `
                     <div class="assignment-card">
-                        <div style="float:right">
-                             <button onclick="delAss('${k}')" style="background:none; border:none; color:#c0392b; cursor:pointer;"><i class="fas fa-trash"></i> Xóa bài</button>
-                        </div>
-                        <h3 style="margin-top:0; color:#2c3e50;">${i.title}</h3>
-                        <div class="content-view">${i.content}</div>
-                        ${keyDisplay}
-                        
-                        <div style="margin-top:15px;">
-                            <button class="toggle-btn" onclick="toggleSubmissions('${k}')">
-                                <i class="fas fa-list"></i> Xem bài nộp của HS
-                            </button>
-                        </div>
-
-                        <div id="subs-${k}" class="submission-area">
-                            <i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu bài làm...
-                        </div>
+                        <button onclick="delAss('${k}')" style="float:right; color:red; border:none; background:none; cursor:pointer;">Xóa</button>
+                        <h3>${i.title}</h3>
+                        <div style="background:#f9f9f9; padding:10px; white-space:pre-wrap;">${i.content}</div>
+                        <div style="margin-top:5px; color:green; font-weight:bold;">Key: ${i.correctAnswer}</div>
                     </div>`;
             });
-        });
-    }
-
-    // --- LOGIC XEM BÀI LÀM ---
-    // Gắn vào window để gọi được từ nút HTML
-    window.toggleSubmissions = function(assId) {
-        const subDiv = document.getElementById(`subs-${assId}`);
-        // Toggle ẩn hiện
-        if (subDiv.style.display === "block") {
-            subDiv.style.display = "none";
-            return;
-        }
-        subDiv.style.display = "block";
-        
-        // Gọi dữ liệu từ answers
-        onValue(ref(db, `answers/${curClass}/${assId}`), (snap) => {
-            const data = snap.val();
-            if(!data) {
-                subDiv.innerHTML = "<p style='color:#7f8c8d; font-style:italic'>Chưa có học sinh nào nộp bài.</p>";
-                return;
-            }
-
-            let html = `
-                <table class="student-table">
-                    <thead>
-                        <tr>
-                            <th width="20%">Học sinh</th>
-                            <th width="15%">Điểm số</th>
-                            <th width="45%">Bài làm chi tiết</th>
-                            <th width="20%">Thời gian</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-            Object.values(data).forEach(ans => {
-                // Xử lý màu sắc điểm số
-                let badgeClass = 'score-low';
-                if(ans.percent >= 80) badgeClass = 'score-high';
-                else if(ans.percent >= 50) badgeClass = 'score-med';
-                
-                const scoreDisplay = ans.score ? 
-                    `<span class="score-badge ${badgeClass}">${ans.score} (${ans.percent}%)</span>` : 
-                    `<span class="score-badge">Chưa chấm</span>`;
-
-                const time = new Date(ans.timestamp).toLocaleString('vi-VN');
-                
-                html += `
-                    <tr>
-                        <td><b>${ans.name}</b></td>
-                        <td>${scoreDisplay}</td>
-                        <td style="font-family:monospace; color:#444;">${ans.answer}</td>
-                        <td style="color:#888; font-size:0.85em;">${time}</td>
-                    </tr>
-                `;
-            });
-
-            html += `</tbody></table>`;
-            subDiv.innerHTML = html;
         });
     }
 </script>
