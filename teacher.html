@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giáo Viên - AI Text Solver ⚡</title>
+    <title>Giáo Viên - AI Tách Đề Chi Tiết</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
@@ -11,102 +11,51 @@
         .sidebar { width: 280px; background: #2c3e50; color: white; display: flex; flex-direction: column; }
         .class-item { padding: 12px; margin: 5px; background: #34495e; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between; color: white;}
         .class-item:hover, .class-item.active { background: #16a085; }
-        
         .main-content { flex: 1; padding: 30px; overflow-y: auto; background: #ecf0f1; }
         .editor-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 1000px; margin: 0 auto 30px auto; }
-        
-        /* AI SECTION STYLE */
-        .ai-section { 
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); 
-            padding: 20px; border-radius: 12px; border: 1px solid #a5d6a7; 
-            margin-bottom: 25px; text-align: center; position: relative;
-        }
-        
-        .ai-header { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;}
-        
-        .model-input-group { display: flex; align-items: center; gap: 5px; background: white; padding: 5px 15px; border-radius: 20px; border: 1px solid #81c784; }
-        .model-input-group input { border: none; outline: none; font-weight: bold; color: #2e7d32; width: 160px; font-size: 0.9em; }
-        .btn-setting { background: white; border: 1px solid #999; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.9em; }
-
-        .btn-ai { 
-            background: linear-gradient(45deg, #43a047, #66bb6a); color: white; 
-            padding: 12px 40px; border: none; border-radius: 50px; 
-            cursor: pointer; font-weight: bold; font-size: 1.1em; 
-            box-shadow: 0 5px 15px rgba(67, 160, 71, 0.3); transition: 0.3s; 
-            display: inline-flex; align-items: center; gap: 10px; 
-        }
-        .btn-ai:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(67, 160, 71, 0.5); }
-        .btn-ai.loading { background: #ccc; cursor: wait; transform: none; box-shadow: none; }
-        
-        #ai-status { margin-top: 15px; font-weight: 500; min-height: 25px; color: #1b5e20; word-break: break-word;}
-
+        .ai-section { background: #e8f5e9; padding: 20px; border-radius: 12px; border: 1px solid #a5d6a7; margin-bottom: 25px; text-align: center; }
+        .btn-ai { background: #43a047; color: white; padding: 12px 40px; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; }
+        #ai-status { margin-top: 15px; color: #1b5e20; font-weight: 500; }
         input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .btn-primary { background: #2c3e50; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
-        
-        #editor-container { height: 400px; background: white; font-family: 'Times New Roman', serif; font-size: 14pt; }
-        
-        .key-builder-area { border: 2px solid #eee; padding: 15px; border-radius: 5px; background: #fafafa; margin-top: 10px; max-height: 400px; overflow-y: auto; }
-        .key-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; background: white; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px; }
-        .key-num { width: 40px; font-weight: bold; text-align: center; color: #fff; background: #34495e; padding: 8px 0; border-radius: 4px; }
-        .btn-del-row { background: #ffcdd2; color: #c62828; border: none; padding: 0 15px; height: 40px; cursor: pointer; border-radius: 4px; }
-        .ans-input { border: 2px solid #43a047 !important; background: #e8f5e9; font-weight: 500; }
-        .assignment-card { background: white; padding: 30px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 1000px; margin: 0 auto 20px auto; position: relative; }
-        .hidden { display: none !important; }
+        .btn-primary { background: #2c3e50; color: white; padding: 12px; width: 100%; font-weight: bold; border:none; cursor: pointer; margin-top:15px; }
+        #editor-container { height: 200px; background: white; }
+        .key-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; background: #fafafa; padding: 10px; border: 1px solid #eee; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <div style="padding:20px; background:#1a252f; color:white; border-bottom:1px solid #34495e;"><h3><i class="fas fa-chalkboard-teacher"></i> Giáo Viên</h3></div>
+    <div style="padding:20px; background:#1a252f; color:white;"><h3>Giáo Viên</h3></div>
     <div id="class-list" style="padding:10px;"></div>
-    <button onclick="addClass()" style="width:100%; padding:15px; background:#e67e22; border:none; color:white; font-weight:bold; cursor:pointer;">+ Thêm Lớp</button>
+    <button onclick="addClass()" style="width:100%; padding:15px; background:#e67e22; border:none; color:white; font-weight:bold;">+ Thêm Lớp</button>
 </div>
 
 <div class="main-content">
-    <div id="welcome" style="text-align:center; margin-top:100px; color:#7f8c8d;"><h2>Chọn lớp để bắt đầu</h2></div>
-
     <div id="manager" class="hidden">
         <h2 id="class-name" style="color:#2c3e50;"></h2>
         
         <div class="editor-box">
-            <h3 style="margin-top:0; color:#2e7d32;">1. Nhập Nội Dung & Giải Đề</h3>
-            <p style="color:#666; margin-bottom:15px;"><i>Hướng dẫn: Copy nội dung từ file Word, dán vào khung bên dưới, sau đó bấm nút để AI tự tạo đáp án.</i></p>
-
-            <input type="text" id="a-title" placeholder="Tiêu đề bài tập (Ví dụ: Bài kiểm tra 15 phút)">
-            
+            <h3 style="margin-top:0; color:#2e7d32;">Nhập đề thi (Word/Text)</h3>
             <div id="editor-container"></div>
             
             <div class="ai-section" style="margin-top: 20px;">
-                <div class="ai-header">
-                    <div class="model-input-group">
-                        <label>Model:</label>
-                        <input type="text" id="gemini-model-name" value="gemini-2.0-flash-exp">
-                    </div>
-                    <button class="btn-setting" onclick="resetApiKey()"><i class="fas fa-key"></i> Key</button>
-                </div>
-                
-                <button id="btn-ai-trigger" class="btn-ai" onclick="processText()">
-                    <i class="fas fa-bolt"></i> AI Giải Đề Ngay
+                <input type="text" id="gemini-key-input" placeholder="Dán API Key Google Gemini vào đây (nếu chưa lưu)" style="margin-bottom:10px;">
+                <button id="btn-ai-trigger" class="btn-ai" onclick="processTextDetailed()">
+                    <i class="fas fa-bolt"></i> AI Tách & Giải Đề
                 </button>
-                <div id="ai-status">Sẵn sàng. (Dùng Key Google của bạn)</div>
+                <div id="ai-status">Dán nội dung đề vào khung trên rồi bấm nút này.</div>
             </div>
 
+            <input type="text" id="a-title" placeholder="Tiêu đề bài tập">
+            
             <div style="margin-top: 20px;">
-                <label style="font-size:1.1em; color:#2c3e50"><b>✅ Bảng đáp án (AI tự điền):</b></label>
-                <div style="margin-top:5px; margin-bottom:10px;">
-                    <button class="btn-add-row" onclick="addKeyRow()" style="background:#3498db; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer">+ Thêm câu</button>
-                    <button class="btn-add-row" onclick="resetKey()" style="background:#95a5a6; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer">Xóa hết</button>
-                </div>
-                <div id="key-container" class="key-builder-area">
-                    <div style="text-align:center; color:#999; padding:40px;">Chưa có câu hỏi.</div>
-                </div>
+                <label><b>✅ Kết quả phân tích (AI):</b></label>
+                <div id="key-container" style="margin-top:10px; border:1px solid #eee; padding:10px; max-height:400px; overflow-y:auto;"></div>
             </div>
 
-            <button class="btn-primary" onclick="addAssignment()">ĐĂNG BÀI TẬP</button>
+            <button class="btn-primary" onclick="addAssignment()">LƯU BÀI TẬP</button>
         </div>
-
-        <h3>📚 Danh sách bài tập:</h3>
-        <div id="list">Loading...</div>
+        <div id="list"></div>
     </div>
 </div>
 
@@ -115,192 +64,108 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
     
-    // --- QUẢN LÝ KEY ---
-    function checkApiKey() {
-        let key = localStorage.getItem("MY_GEMINI_KEY");
-        if (!key || key.length < 10) {
-            key = prompt("Nhập Google Gemini API Key:\n(Key được lưu an toàn trên máy bạn)");
-            if (key) localStorage.setItem("MY_GEMINI_KEY", key.trim());
-        }
-        return key;
-    }
-    window.resetApiKey = () => {
-        if(confirm("Nhập lại API Key?")) {
-            localStorage.removeItem("MY_GEMINI_KEY");
-            checkApiKey();
-            alert("Đã cập nhật Key!");
-        }
-    }
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE",
-      authDomain: "lophoconl.firebaseapp.com",
-      databaseURL: "https://lophoconl-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "lophoconl",
-      storageBucket: "lophoconl.firebasestorage.app",
-      messagingSenderId: "1051247561864",
-      appId: "1:1051247561864:web:43886eee9886cafd59a33d"
-    };
-
+    const firebaseConfig = { apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE", authDomain: "lophoconl.firebaseapp.com", databaseURL: "https://lophoconl-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "lophoconl", storageBucket: "lophoconl.firebasestorage.app", messagingSenderId: "1051247561864", appId: "1:1051247561864:web:43886eee9886cafd59a33d" };
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     let curClass = null;
-    let questionCount = 0;
+    let extractedData = {}; // Dữ liệu đã tách
 
-    var quill = new Quill('#editor-container', {
-        theme: 'snow',
-        placeholder: 'Dán nội dung từ Word vào đây...',
-        modules: { toolbar: [['bold', 'italic', 'underline'], [{'list':'ordered'},{'list':'bullet'}], [{'color':[]},{'background':[]}], ['clean']] }
-    });
+    var quill = new Quill('#editor-container', { theme: 'snow', placeholder: 'Dán toàn bộ nội dung đề thi vào đây...' });
 
-    // --- LOGIC XỬ LÝ VĂN BẢN (KHÔNG CẦN ẢNH) ---
-    window.processText = async () => {
-        let apiKey = checkApiKey();
-        if (!apiKey) return alert("Cần có API Key Google!");
+    // --- LOGIC AI TÁCH ĐỀ ---
+    window.processTextDetailed = async () => {
+        let key = document.getElementById('gemini-key-input').value.trim();
+        if(!key) key = localStorage.getItem("MY_GEMINI_KEY");
+        if(!key) return alert("Cần nhập API Key!");
+        localStorage.setItem("MY_GEMINI_KEY", key);
 
-        // Lấy nội dung từ khung soạn thảo
-        const textContent = quill.getText().trim();
-        if(textContent.length < 10) {
-            return alert("Vui lòng dán đề thi vào khung soạn thảo phía trên trước khi bấm nút AI.");
-        }
+        const text = quill.getText();
+        if(text.length < 10) return alert("Chưa có nội dung đề!");
 
-        const modelName = document.getElementById('gemini-model-name').value.trim();
         const btn = document.getElementById('btn-ai-trigger');
         const status = document.getElementById('ai-status');
-        
-        btn.classList.add('loading');
-        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang đọc & giải đề...`;
-        btn.disabled = true;
-        status.innerHTML = `<span style="color:#2e7d32">Đang phân tích văn bản và tìm đáp án (Model: ${modelName})...</span>`;
-        
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-        
-        // --- PROMPT MỚI: CHUYÊN XỬ LÝ TEXT ---
-        const promptText = `
-            Dưới đây là nội dung một đề thi. Hãy phân tích nó và GIẢI ĐỀ.
+        btn.innerHTML = "Đang phân tích..."; btn.disabled = true;
+        status.innerText = "Đang tách câu hỏi và đáp án...";
+
+        const prompt = `
+            Phân tích đề thi sau và trả về JSON.
+            ĐỀ BÀI: """${text}"""
             
-            NỘI DUNG ĐỀ THI:
-            """
-            ${textContent}
-            """
-
-            NHIỆM VỤ:
-            1. Tìm các câu hỏi trong văn bản trên.
-            2. Xác định đáp án đúng cho từng câu hỏi (Dựa vào kiến thức của bạn).
-
-            OUTPUT JSON DUY NHẤT (không markdown):
+            YÊU CẦU OUTPUT JSON (Duy nhất):
             {
+                "title": "Tên bài thi (tự đặt)",
                 "questions": {
-                    "1": { "type": "mcq", "ans": "A" },
-                    "2": { "type": "fill", "ans": "word" }
+                    "1": { 
+                        "content": "Nội dung câu hỏi (bỏ đáp án)", 
+                        "options": ["A. Đáp án A", "B. Đáp án B", "C. Đáp án C", "D. Đáp án D"], 
+                        "correct": "A" 
+                    },
+                    "2": { ... }
                 }
             }
-            
-            Lưu ý: 
-            - 'ans' phải là đáp án đúng.
-            - Số thứ tự câu hỏi phải khớp với văn bản.
         `;
 
-        const payload = { contents: [{ parts: [ { text: promptText } ] }] };
-
         try {
-            const response = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
-            if(!response.ok) {
-                const err = await response.json();
-                throw new Error(err.error?.message || response.statusText);
-            }
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${key}`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+            const data = await resp.json();
+            const jsonStr = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+            const result = JSON.parse(jsonStr);
+
+            document.getElementById('a-title').value = result.title || "";
+            extractedData = result.questions;
             
-            const data = await response.json();
-            const textResponse = data.candidates[0].content.parts[0].text;
-            const result = JSON.parse(textResponse.replace(/```json|```/g, '').trim());
-
-            resetKey();
-            if(result.questions) {
-                Object.keys(result.questions).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(num => {
-                    const q = result.questions[num];
-                    addKeyRowWithData(num, q.type, q.ans);
-                });
-                status.innerHTML = `<span style="color:#2ecc71; font-weight:bold"><i class="fas fa-check-circle"></i> Thành công! Đã điền ${Object.keys(result.questions).length} câu trả lời.</span>`;
-            } else {
-                status.innerHTML = `<span style="color:orange">AI không tìm thấy câu hỏi nào. Hãy kiểm tra lại định dạng văn bản.</span>`;
-            }
-        } catch (error) {
-            console.error(error);
-            status.innerHTML = `<span style="color:#c62828">❌ Lỗi: ${error.message}</span>`;
+            // Render preview
+            const cont = document.getElementById('key-container');
+            cont.innerHTML = "";
+            Object.keys(extractedData).forEach(k => {
+                const q = extractedData[k];
+                cont.innerHTML += `
+                    <div class="key-row" style="flex-direction:column; align-items:flex-start">
+                        <b>Câu ${k}: ${q.content}</b>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap">
+                            ${q.options.map(o => `<span style="background:#eee; padding:2px 8px; border-radius:4px">${o}</span>`).join('')}
+                        </div>
+                        <div style="color:green; font-weight:bold">Đúng: ${q.correct}</div>
+                    </div>`;
+            });
+            status.innerHTML = "✅ Đã tách xong! Kiểm tra và Lưu.";
+        } catch (e) {
+            console.error(e);
+            alert("Lỗi AI: " + e.message);
+            status.innerText = "Lỗi. Thử lại.";
         } finally {
-            btn.classList.remove('loading');
-            btn.innerHTML = `<i class="fas fa-bolt"></i> AI Giải Đề Ngay`;
-            btn.disabled = false;
+            btn.innerHTML = "AI Tách & Giải Đề"; btn.disabled = false;
         }
     }
 
-    // --- HELPER FUNCTIONS ---
-    window.addKeyRowWithData = (num, type, ans) => {
-        const c = document.getElementById('key-container');
-        if(c.innerText.includes('Chưa có câu hỏi')) c.innerHTML = "";
-        if(parseInt(num) > questionCount) questionCount = parseInt(num);
-        const id = `row-${num}`;
-        let inputHtml = "";
-        if(type === 'mcq') {
-            inputHtml = `<select class="ans-input" style="width:100%"><option value="A" ${ans=='A'?'selected':''}>A</option><option value="B" ${ans=='B'?'selected':''}>B</option><option value="C" ${ans=='C'?'selected':''}>C</option><option value="D" ${ans=='D'?'selected':''}>D</option></select>`;
-        } else {
-            inputHtml = `<input type="text" class="ans-input" value="${ans || ''}" placeholder="Đáp án...">`;
-        }
-        const html = `<div class="key-row" id="${id}"><div class="key-num">#${num}</div><select class="key-type" onchange="changeType('${id}')" style="width:150px"><option value="mcq" ${type=='mcq'?'selected':''}>Trắc nghiệm</option><option value="fill" ${type=='fill'?'selected':''}>Điền từ</option><option value="essay" ${type=='essay'?'selected':''}>Tự luận</option></select><div class="key-val" id="val-${id}" style="flex:1">${inputHtml}</div><button class="btn-del-row" onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i></button></div>`;
-        c.insertAdjacentHTML('beforeend', html);
-    }
-    
-    window.addKeyRow = () => { questionCount++; addKeyRowWithData(questionCount, 'mcq', 'A'); }
-    window.resetKey = () => { document.getElementById('key-container').innerHTML = "<div style='text-align:center;color:#999;padding:40px;'>Chưa có câu hỏi.</div>"; questionCount = 0; }
-    window.changeType = (id) => {
-        const type = document.querySelector(`#${id} .key-type`).value;
-        const div = document.getElementById(`val-${id}`);
-        if(type==='mcq') div.innerHTML = `<select class="ans-input" style="width:100%"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>`;
-        else div.innerHTML = `<input type="text" class="ans-input" placeholder="Đáp án đúng...">`;
+    window.addAssignment = () => {
+        if(!curClass || Object.keys(extractedData).length === 0) return alert("Chưa chọn lớp hoặc chưa có dữ liệu AI!");
+        const title = document.getElementById('a-title').value;
+        push(ref(db, `assignments/${curClass}`), {
+            title: title,
+            data: JSON.stringify(extractedData), // Lưu cấu trúc chi tiết
+            timestamp: Date.now()
+        });
+        alert("Đã lưu bài tập!");
+        quill.setText(""); document.getElementById('key-container').innerHTML = ""; extractedData = {};
     }
 
+    // Logic Class/List (Giữ nguyên cơ bản)
     window.addClass = () => { const n = prompt("Tên lớp:"); if(n) push(ref(db, 'classes'), {name: n}); }
     onValue(ref(db, 'classes'), snap => {
-        const list = document.getElementById('class-list');
-        list.innerHTML = "";
-        const d = snap.val();
-        if(d) Object.keys(d).forEach(k => list.innerHTML += `<div class="class-item" onclick="selClass('${k}', '${d[k].name}')"><span>${d[k].name}</span> <i class="fas fa-trash" onclick="delClass(event,'${k}')"></i></div>`);
+        const l = document.getElementById('class-list'); l.innerHTML = "";
+        const d = snap.val(); if(d) Object.keys(d).forEach(k => l.innerHTML += `<div class="class-item" onclick="curClass='${k}'; document.getElementById('manager').classList.remove('hidden'); document.getElementById('class-name').innerText='${d[k].name}'; loadAss('${k}')">${d[k].name}</div>`);
     });
-    window.selClass = (k, n) => { curClass = k; document.getElementById('welcome').classList.add('hidden'); document.getElementById('manager').classList.remove('hidden'); document.getElementById('class-name').innerText = n; loadAss(k); }
-    window.delClass = (e, k) => { e.stopPropagation(); if(confirm("Xóa lớp?")) remove(ref(db, `classes/${k}`)); }
-    
-    window.addAssignment = () => {
-        if(!curClass) return alert("Chọn lớp trước!");
-        const title = document.getElementById('a-title').value;
-        const content = quill.root.innerHTML;
-        const rows = document.querySelectorAll('.key-row');
-        const keyMap = {};
-        rows.forEach(r => {
-            const numText = r.querySelector('.key-num').innerText.replace('#', '');
-            const t = r.querySelector('.key-type').value;
-            const a = r.querySelector('.ans-input').value.trim();
-            if(a) keyMap[numText] = {type: t, ans: a};
-        });
-        if(title && Object.keys(keyMap).length > 0) {
-            push(ref(db, `assignments/${curClass}`), { title: title, content: content, correctAnswer: JSON.stringify(keyMap), timestamp: Date.now() });
-            alert("Đã đăng bài!");
-            document.getElementById('a-title').value=""; quill.setContents([]); resetKey();
-        } else alert("Thiếu thông tin!");
-    }
-    window.delAss = (id) => { if(confirm("Xóa bài này?")) remove(ref(db, `assignments/${curClass}/${id}`)); }
-    
-    function loadAss(cid) {
-        onValue(ref(db, `assignments/${cid}`), snap => {
-            const list = document.getElementById('list');
-            list.innerHTML = "";
-            const d = snap.val();
-            if(!d) return list.innerHTML = "<p>Chưa có bài.</p>";
-            Object.keys(d).reverse().forEach(aid => {
-                const i = d[aid];
-                list.innerHTML += `<div class="assignment-card"><button onclick="delAss('${aid}')" style="float:right;color:red;border:none;background:none;cursor:pointer">Xóa</button><h3>${i.title}</h3><div style="color:green"><i class="fas fa-check-circle"></i> Đã tạo đề</div></div>`;
-            });
+    window.loadAss = (k) => {
+        onValue(ref(db, `assignments/${k}`), snap => {
+            const l = document.getElementById('list'); l.innerHTML = "";
+            const d = snap.val(); if(d) Object.keys(d).reverse().forEach(aid => l.innerHTML += `<div style="background:white; padding:10px; margin:5px; border-radius:5px">${d[aid].title} <button onclick="delAss('${k}','${aid}')" style="float:right; color:red; border:none; background:none; cursor:pointer">Xóa</button></div>`);
         });
     }
+    window.delAss = (c, a) => { if(confirm("Xóa?")) remove(ref(db, `assignments/${c}/${a}`)); }
 </script>
 </body>
 </html>
