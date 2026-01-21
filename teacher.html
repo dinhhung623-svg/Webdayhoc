@@ -3,156 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giáo Viên - Quản Lý & Chấm Điểm</title>
+    <title>Giáo Viên - Quản Lý Lớp</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; margin: 0; background: #f0f2f5; }
-        .sidebar { width: 280px; background: #2c3e50; color: white; display: flex; flex-direction: column; }
+        
+        /* SIDEBAR */
+        .sidebar { width: 280px; background: #2c3e50; color: white; display: flex; flex-direction: column; border-right: 1px solid #ddd; }
         .sidebar-header { padding: 20px; background: #1a252f; border-bottom: 1px solid #34495e; }
-        .class-item { padding: 12px; margin: 5px 10px; background: #34495e; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between; }
+        .class-item { padding: 12px; margin: 5px 10px; background: #34495e; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;}
         .class-item:hover, .class-item.active { background: #16a085; }
-        .btn-icon { background: none; border: none; color: #fff; cursor: pointer; }
+        .btn-icon { background: none; border: none; color: #fff; cursor: pointer; opacity: 0.7; }
+        .btn-icon:hover { opacity: 1; color: #f1c40f; }
         
+        /* MAIN CONTENT */
         .main-content { flex: 1; padding: 30px; overflow-y: auto; }
-        .editor-box { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn-primary { background: #2980b9; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; font-weight: bold;}
-        
-        .assignment-card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; border-left: 5px solid #bdc3c7; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .key-box { background: #e8f8f5; color: #27ae60; padding: 10px; margin-top: 10px; border: 1px dashed #27ae60; font-family: monospace; }
         .hidden { display: none !important; }
-    </style>
-</head>
-<body>
-
-<div class="sidebar">
-    <div class="sidebar-header"><h3><i class="fas fa-chalkboard-teacher"></i> Giáo Viên</h3></div>
-    <div id="class-list" style="flex:1; overflow-y:auto; padding-top:10px;"></div>
-    <button onclick="addClass()" style="padding:15px; background:#e67e22; border:none; color:white; font-weight:bold; cursor:pointer;">+ Thêm Lớp</button>
-</div>
-
-<div class="main-content">
-    <div id="welcome" style="text-align:center; margin-top:100px; color:#7f8c8d;">
-        <i class="fas fa-school" style="font-size:4em;"></i><h2>Chọn lớp để bắt đầu</h2>
-    </div>
-
-    <div id="manager" class="hidden">
-        <h2 id="class-name" style="color:#2c3e50;"></h2>
         
-        <div class="editor-box">
-            <h3 style="margin-top:0; color:#2980b9;">📝 Soạn Bài Tập & Đáp Án</h3>
-            
-            <input type="text" id="a-title" placeholder="Tiêu đề (VD: Unit 8 - Practice 1)">
-            
-            <label><b>Nội dung câu hỏi:</b></label>
-            <textarea id="a-content" rows="6" placeholder="Paste câu hỏi trắc nghiệm vào đây..."></textarea>
-            
-            <label style="color:#c0392b;"><b>🔑 Đáp án đúng (để máy tự chấm):</b></label>
-            <textarea id="a-key" rows="2" placeholder="Nhập đáp án theo thứ tự. VD: 1A 2B 3C 4D... (Máy sẽ so sánh chuỗi này với bài làm của HS)"></textarea>
-            <small><i>Lưu ý: Nếu để trống ô này, bài sẽ không được chấm điểm tự động.</i></small>
+        .editor-box { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        input, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn-primary { background: #2980b9; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px;}
 
-            <button class="btn-primary" onclick="addAssignment()">Đăng Bài</button>
-        </div>
+        /* BÀI TẬP CARD */
+        .assignment-card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; border-left: 5px solid #bdc3c7; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .content-view { white-space: pre-wrap; background: #f8f9fa; padding: 10px; border: 1px dashed #ced4da; margin: 10px 0; font-family: 'Consolas', monospace; font-size: 0.9em; }
+        .key-view { background: #e8f8f5; color: #27ae60; padding: 8px; font-weight: bold; font-family: monospace; border-radius: 4px; font-size: 0.9em; }
 
-        <h3>Danh sách bài tập:</h3>
-        <div id="list">Loading...</div>
-    </div>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
-
-    // --- CẤU HÌNH ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE",
-      authDomain: "lophoconl.firebaseapp.com",
-      databaseURL: "https://lophoconl-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "lophoconl",
-      storageBucket: "lophoconl.firebasestorage.app",
-      messagingSenderId: "1051247561864",
-      appId: "1:1051247561864:web:43886eee9886cafd59a33d"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    let curClass = null;
-
-    // --- LOGIC ---
-    window.addClass = () => { const n = prompt("Tên lớp:"); if(n) push(ref(db, 'classes'), {name: n}); }
-    
-    // Xóa/Sửa Lớp
-    window.delClass = (e, id) => { e.stopPropagation(); if(confirm("Xóa lớp này?")) { remove(ref(db, `classes/${id}`)); remove(ref(db, `assignments/${id}`)); remove(ref(db, `answers/${id}`)); if(curClass===id) location.reload(); }}
-    window.editClass = (e, id, old) => { e.stopPropagation(); const n = prompt("Tên mới:", old); if(n) update(ref(db, `classes/${id}`), {name: n}); }
-
-    // Load Lớp
-    onValue(ref(db, 'classes'), snap => {
-        document.getElementById('class-list').innerHTML = "";
-        const data = snap.val();
-        if(data) Object.keys(data).forEach(k => {
-            document.getElementById('class-list').innerHTML += `
-                <div class="class-item ${curClass===k?'active':''}" onclick="selClass('${k}', '${data[k].name}')">
-                    <span>${data[k].name}</span>
-                    <div>
-                        <button class="btn-icon" onclick="editClass(event, '${k}', '${data[k].name}')"><i class="fas fa-pen"></i></button>
-                        <button class="btn-icon" onclick="delClass(event, '${k}')"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>`;
-        });
-    });
-
-    window.selClass = (k, n) => {
-        curClass = k;
-        document.getElementById('welcome').classList.add('hidden');
-        document.getElementById('manager').classList.remove('hidden');
-        document.getElementById('class-name').innerText = n;
-        loadAss(k);
-        // Refresh lại giao diện sidebar để highlight
-        const items = document.querySelectorAll('.class-item');
-        items.forEach(i => i.classList.remove('active'));
-        // (Cách đơn giản để highlight không cần render lại)
-    }
-
-    // Đăng bài
-    window.addAssignment = () => {
-        if(!curClass) return alert("Chọn lớp trước!");
-        const t = document.getElementById('a-title').value;
-        const c = document.getElementById('a-content').value;
-        const k = document.getElementById('a-key').value; // Lấy đáp án
-
-        if(t && c) {
-            push(ref(db, `assignments/${curClass}`), {
-                title: t, content: c, correctAnswer: k, timestamp: Date.now()
-            });
-            alert("Đã đăng!");
-            document.getElementById('a-title').value="";
-            document.getElementById('a-content').value="";
-            document.getElementById('a-key').value="";
-        } else alert("Thiếu thông tin!");
-    }
-
-    window.delAss = (id) => { if(confirm("Xóa bài này?")) remove(ref(db, `assignments/${curClass}/${id}`)); }
-
-    function loadAss(cid) {
-        onValue(ref(db, `assignments/${cid}`), snap => {
-            const list = document.getElementById('list');
-            list.innerHTML = "";
-            const d = snap.val();
-            if(!d) return list.innerHTML = "<p>Chưa có bài tập.</p>";
-            
-            Object.keys(d).reverse().forEach(k => {
-                const i = d[k];
-                const keyHtml = i.correctAnswer ? `<div class="key-box"><b>Đáp án hệ thống:</b> ${i.correctAnswer}</div>` : '';
-                list.innerHTML += `
-                    <div class="assignment-card">
-                        <button onclick="delAss('${k}')" style="float:right; border:none; color:red; cursor:pointer;">Xóa</button>
-                        <h3>${i.title}</h3>
-                        <div style="white-space:pre-wrap; background:#f9f9f9; padding:10px;">${i.content}</div>
-                        ${keyHtml}
-                    </div>`;
-            });
-        });
-    }
-</script>
-</body>
-</html>
+        /* BẢNG ĐIỂM HỌC SINH */
+        .submission-area { margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; display: none; }
+        .student-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        .student-table th { background: #f1f1f1; text-align: left; padding: 8px; border-bottom: 2px solid #ddd; }
+        .student-table td { border-bottom: 1px solid #eee; padding: 8px; vertical-align: top; }
+        .score-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-weight: bold; color: white; background: #95a5a6; font-size: 0.85em; }
+        .score-high { background: #27ae60; }
+        .score-med { background: #f39c12; }
+        .score-low { background: #e74c3c; }
+        
+        .toggle-btn { background: #ecf0f1; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; color: #2c3e50; font-weight: 500; font-size: 0.9em; display: inline-flex; align-items: center; gap: 5px; }
+        .toggle-btn:hover { background: #bdc3c7; }
+    </style>
