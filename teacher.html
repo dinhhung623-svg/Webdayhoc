@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giáo Viên - AI Tự Giải Đề 🧠</title>
+    <title>Giáo Viên - AI Fix 404 🔧</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
@@ -33,7 +33,7 @@
         .btn-ai:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(46, 204, 113, 0.6); }
         .btn-ai.loading { background: #bdc3c7; cursor: wait; transform: none; box-shadow: none; }
         
-        #ai-status { margin-top: 15px; font-weight: 500; min-height: 25px; color: #2c3e50; }
+        #ai-status { margin-top: 15px; font-weight: 500; min-height: 25px; color: #2c3e50; word-break: break-word;}
 
         input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         .btn-primary { background: #2c3e50; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
@@ -77,7 +77,7 @@
                 </button>
                 <div id="ai-status">Sẵn sàng phân tích và giải đề...</div>
                 <div style="font-size:0.85em; color:#555; margin-top:10px; background: rgba(255,255,255,0.5); padding: 5px; border-radius: 4px;">
-                    💡 <b>Mẹo:</b> Ảnh càng rõ nét, AI giải càng chính xác. Hệ thống sẽ tự động điền đáp án đúng vào bảng bên dưới.
+                    💡 <b>Mẹo:</b> Nên dùng ảnh rõ nét. Hệ thống sử dụng model <b>Gemini 1.5 Flash (Latest)</b> để xử lý.
                 </div>
             </div>
 
@@ -112,11 +112,10 @@
     import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
     
     // =========================================================================
-    // !!! ĐÃ TÍCH HỢP KEY CỦA BẠN VÀO DƯỚI ĐÂY !!!
-    const GEMINI_API_KEY = "AIzaSyADUYsufxWNiqMUOlxf74nsAGgmXeMSBUA"; 
+    // !!! API KEY CỦA BẠN (Mình đã thêm hàm .trim() bên dưới để xóa khoảng trắng thừa) !!!
+    const GEMINI_API_KEY_RAW = "AIzaSyADUYsufxWNiqMUOlxf74nsAGgmXeMSBUA"; 
     // =========================================================================
 
-    // --- CẤU HÌNH FIREBASE ---
     const firebaseConfig = {
       apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE",
       authDomain: "lophoconl.firebaseapp.com",
@@ -137,10 +136,13 @@
         modules: { toolbar: [['bold', 'italic', 'underline'], [{'list':'ordered'},{'list':'bullet'}], [{'color':[]},{'background':[]}], ['clean']] }
     });
 
-    // --- LOGIC XỬ LÝ AI (NÂNG CẤP KHẢ NĂNG GIẢI ĐỀ) ---
+    // --- LOGIC XỬ LÝ AI ---
     window.processImage = async () => {
-        if(GEMINI_API_KEY.includes("DÁN_MÃ") || GEMINI_API_KEY.length < 10) {
-            alert("LỖI: API Key chưa hợp lệ. Vui lòng kiểm tra lại mã code.");
+        // 1. Làm sạch Key (xóa khoảng trắng nếu có)
+        const FINAL_KEY = GEMINI_API_KEY_RAW.trim();
+
+        if(FINAL_KEY.length < 10) {
+            alert("Lỗi Key: Key quá ngắn hoặc không hợp lệ.");
             return;
         }
 
@@ -151,38 +153,30 @@
         const btn = document.getElementById('btn-ai-trigger');
         const status = document.getElementById('ai-status');
         btn.classList.add('loading');
-        btn.innerHTML = `<i class="fas fa-brain fa-spin"></i> Đang đọc & giải đề...`;
+        btn.innerHTML = `<i class="fas fa-brain fa-spin"></i> Đang xử lý...`;
         btn.disabled = true;
-        status.innerHTML = `<span style="color:#e67e22">Bước 1: Đọc văn bản... Bước 2: Suy luận đáp án... (Vui lòng đợi 5-10s)</span>`;
+        status.innerHTML = `<span style="color:#e67e22">Đang gửi tới Google Gemini...</span>`;
         
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = async function() {
             const base64String = reader.result.split(',')[1]; 
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            // **THAY ĐỔI QUAN TRỌNG: Dùng model 'gemini-1.5-flash-latest' để tránh lỗi 404**
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${FINAL_KEY}`;
             
-            // --- CÂU LỆNH "THẦN THÁNH" CHO AI ---
             const promptText = `
-                Bạn là một giáo viên chuyên nghiệp. Tôi gửi cho bạn một bức ảnh đề thi.
-                NHIỆM VỤ CỦA BẠN LÀ:
-                1. Trích xuất nội dung đề thi thành văn bản HTML để hiển thị (Giữ nguyên định dạng đoạn văn, các câu hỏi trắc nghiệm giữ nguyên A,B,C,D để học sinh đọc).
-                2. TỰ ĐỘNG GIẢI ĐỀ THI NÀY: Dựa vào kiến thức của bạn, hãy xác định đáp án đúng cho từng câu hỏi.
-
-                YÊU CẦU OUTPUT (JSON DUY NHẤT):
+                Bạn là giáo viên. Hãy trích xuất đề thi từ ảnh này và GIẢI ĐỀ luôn.
+                OUTPUT JSON (duy nhất):
                 {
-                    "title": "Tên bài tập (ngắn gọn)",
-                    "html": "Nội dung đề bài dạng HTML",
+                    "title": "Tên bài (ngắn)",
+                    "html": "Nội dung đề bài dạng HTML (giữ nguyên định dạng, giữ nguyên các đáp án A,B,C,D trong html để hiển thị)",
                     "questions": {
-                        "1": { "type": "mcq", "ans": "A" },  <-- ans là đáp án bạn giải được (A, B, C, D)
-                        "2": { "type": "fill", "ans": "word" }, <-- ans là từ bạn điền vào
-                        "3": { "type": "essay", "ans": "Example sentence." }
+                        "1": { "type": "mcq", "ans": "A" },
+                        "2": { "type": "fill", "ans": "word" }
                     }
                 }
-                
-                LƯU Ý: 
-                - Hãy cố gắng hết sức để điền trường "ans" (đáp án đúng), đừng để trống.
-                - Số thứ tự câu hỏi trong "questions" phải khớp với ảnh.
+                LƯU Ý: Trường 'ans' phải là đáp án đúng mà bạn giải được.
             `;
 
             const payload = {
@@ -192,14 +186,21 @@
             try {
                 const response = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
                 
-                if(!response.ok) throw new Error(`Lỗi API: ${response.status} - Vui lòng kiểm tra lại Key hoặc kết nối mạng.`);
-                const data = await response.json();
+                if(!response.ok) {
+                    // Đọc lỗi chi tiết từ Google
+                    const errText = await response.text();
+                    console.error("API Error Detail:", errText);
+                    throw new Error(`Lỗi Google (${response.status}): ${response.statusText}`);
+                }
                 
+                const data = await response.json();
+                if(!data.candidates || !data.candidates[0].content) throw new Error("AI không trả về kết quả.");
+
                 const textResponse = data.candidates[0].content.parts[0].text;
                 const cleanJson = textResponse.replace(/```json|```/g, '').trim();
                 const result = JSON.parse(cleanJson);
 
-                // --- ĐIỀN DỮ LIỆU ---
+                // Điền dữ liệu
                 if(result.title) document.getElementById('a-title').value = result.title;
                 quill.root.innerHTML = result.html; 
                 
@@ -211,10 +212,10 @@
                     });
                 }
 
-                status.innerHTML = `<span style="color:#2ecc71; font-weight:bold"><i class="fas fa-check-circle"></i> Đã xử lý xong! AI đã tự điền đáp án, vui lòng kiểm tra lại bên dưới.</span>`;
+                status.innerHTML = `<span style="color:#2ecc71; font-weight:bold"><i class="fas fa-check-circle"></i> Thành công! Đã tự động giải đề.</span>`;
             } catch (error) {
                 console.error(error);
-                status.innerHTML = `<span style="color:#c62828"><i class="fas fa-bug"></i> Lỗi: ${error.message}. Hãy thử ảnh khác rõ nét hơn.</span>`;
+                status.innerHTML = `<span style="color:#c62828; font-weight:bold">❌ Lỗi: ${error.message}</span><br><small>Nếu lỗi 404: Key của bạn có thể chưa kích hoạt model này. Hãy tạo Project mới trên Google AI Studio.</small>`;
             } finally {
                 btn.classList.remove('loading');
                 btn.innerHTML = `<i class="fas fa-camera"></i> Tải Ảnh Đề Thi`;
@@ -231,7 +232,6 @@
         const id = `row-${num}`;
         
         let inputHtml = "";
-        // Tự động chọn đúng đáp án trong Select Box
         if(type === 'mcq') {
             inputHtml = `<select class="ans-input" style="width:100%"><option value="A" ${ans=='A'?'selected':''}>A</option><option value="B" ${ans=='B'?'selected':''}>B</option><option value="C" ${ans=='C'?'selected':''}>C</option><option value="D" ${ans=='D'?'selected':''}>D</option></select>`;
         } else {
@@ -252,7 +252,6 @@
         c.insertAdjacentHTML('beforeend', html);
     }
     
-    // Các hàm cũ giữ nguyên
     window.addKeyRow = () => { questionCount++; addKeyRowWithData(questionCount, 'mcq', 'A'); }
     window.resetKey = () => { document.getElementById('key-container').innerHTML = "<div style='text-align:center;color:#999;padding:40px;'>Chưa có câu hỏi.</div>"; questionCount = 0; }
     window.changeType = (id) => {
