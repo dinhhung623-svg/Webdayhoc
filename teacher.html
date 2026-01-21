@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giáo Viên - AI GitHub Safe 🛡️</title>
+    <title>Giáo Viên - AI Multi-Model 🎛️</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
@@ -15,37 +15,45 @@
         .main-content { flex: 1; padding: 30px; overflow-y: auto; background: #ecf0f1; }
         .editor-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 1000px; margin: 0 auto 30px auto; }
         
-        /* AI BUTTON & SETTINGS */
+        /* AI SECTION STYLES */
         .ai-section { 
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); 
-            padding: 25px; border-radius: 12px; border: 2px dashed #2196f3; 
-            margin-bottom: 25px; text-align: center; position: relative; overflow: hidden;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); 
+            padding: 25px; border-radius: 12px; border: 1px solid #d1c4e9; 
+            margin-bottom: 25px; text-align: center; position: relative;
         }
-        .ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .key-status { font-size: 0.9em; background: rgba(255,255,255,0.6); padding: 5px 10px; border-radius: 15px; color: #1565c0; }
         
-        .btn-setting { background: none; border: none; cursor: pointer; color: #555; font-size: 1.2em; transition: 0.3s; }
-        .btn-setting:hover { color: #2196f3; transform: rotate(90deg); }
+        .ai-controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        
+        /* Dropdown chọn Model */
+        #ai-model-select {
+            padding: 10px; border-radius: 20px; border: 1px solid #9575cd; 
+            background: white; color: #5e35b1; font-weight: bold; cursor: pointer;
+            outline: none;
+        }
+
+        .btn-setting { background: white; border: 1px solid #ccc; padding: 10px 15px; border-radius: 20px; cursor: pointer; color: #555; display: flex; align-items: center; gap: 5px; }
+        .btn-setting:hover { background: #eee; }
 
         .btn-ai { 
-            background: linear-gradient(45deg, #2980b9, #2ecc71); color: white; 
-            padding: 15px 35px; border: none; border-radius: 50px; 
+            background: linear-gradient(45deg, #7e57c2, #ab47bc); color: white; 
+            padding: 12px 35px; border: none; border-radius: 50px; 
             cursor: pointer; font-weight: bold; font-size: 1.1em; 
-            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); transition: 0.3s; 
+            box-shadow: 0 5px 15px rgba(171, 71, 188, 0.4); transition: 0.3s; 
             display: inline-flex; align-items: center; gap: 10px; 
         }
-        .btn-ai:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(46, 204, 113, 0.6); }
+        .btn-ai:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(171, 71, 188, 0.6); }
         .btn-ai.loading { background: #bdc3c7; cursor: wait; transform: none; box-shadow: none; }
         
-        #ai-status { margin-top: 15px; font-weight: 500; min-height: 25px; color: #2c3e50; word-break: break-word;}
+        #ai-status { margin-top: 15px; font-weight: 500; min-height: 25px; color: #4a148c; word-break: break-word;}
 
+        /* EDITOR & INPUTS */
         input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         .btn-primary { background: #2c3e50; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
-        
         #editor-container { height: 400px; background: white; font-family: 'Times New Roman', serif; font-size: 14pt; }
         
+        /* Key Builder */
         .key-builder-area { border: 2px solid #eee; padding: 15px; border-radius: 5px; background: #fafafa; margin-top: 10px; max-height: 400px; overflow-y: auto; }
-        .key-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; background: white; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .key-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; background: white; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px; }
         .key-num { width: 40px; font-weight: bold; text-align: center; color: #fff; background: #34495e; padding: 8px 0; border-radius: 4px; }
         .btn-del-row { background: #ffcdd2; color: #c62828; border: none; padding: 0 15px; height: 40px; cursor: pointer; border-radius: 4px; }
         .ans-input { border: 2px solid #2ecc71 !important; background: #f0fff4; font-weight: 500; }
@@ -68,26 +76,34 @@
         <h2 id="class-name" style="color:#2c3e50;"></h2>
         
         <div class="editor-box">
-            <h3 style="margin-top:0; color:#2980b9;">🤖 Soạn Đề Tự Động (AI)</h3>
+            <h3 style="margin-top:0; color:#2980b9;">🤖 Soạn Đề Thông Minh (V19)</h3>
             
             <div class="ai-section">
-                <div class="ai-header">
-                    <span id="key-indicator" class="key-status"><i class="fas fa-key"></i> Kiểm tra Key...</span>
-                    <button class="btn-setting" onclick="resetApiKey()" title="Đổi API Key"><i class="fas fa-cog"></i> Cài đặt Key</button>
+                <div class="ai-controls">
+                    <select id="ai-model-select" title="Chọn phiên bản AI">
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Ổn định)</option>
+                        <option value="gemini-1.5-flash-latest" selected>Gemini 1.5 Flash (Mới nhất)</option>
+                        <option value="gemini-1.5-flash-001">Gemini 1.5 Flash (001)</option>
+                        <option value="gemini-1.5-flash-002">Gemini 1.5 Flash (002)</option>
+                        <option value="gemini-1.5-pro">Gemini 1.5 Pro (Mạnh hơn)</option>
+                    </select>
+                    
+                    <button class="btn-setting" onclick="resetApiKey()"><i class="fas fa-key"></i> Đổi API Key</button>
                 </div>
                 
                 <input type="file" id="ai-image-input" accept="image/*" style="display:none" onchange="processImage()">
                 <button id="btn-ai-trigger" class="btn-ai" onclick="document.getElementById('ai-image-input').click()">
-                    <i class="fas fa-camera"></i> Tải Ảnh Đề Thi
+                    <i class="fas fa-magic"></i> Tải Ảnh & Giải Đề
                 </button>
-                <div id="ai-status">Hệ thống sẵn sàng. Chọn ảnh để bắt đầu.</div>
+                
+                <div id="ai-status">Sẵn sàng. Nếu lỗi, hãy thử đổi Model ở trên.</div>
             </div>
 
             <input type="text" id="a-title" placeholder="Tiêu đề bài tập">
             <div id="editor-container"></div>
             
             <div style="margin-top: 20px;">
-                <label style="font-size:1.1em; color:#2c3e50"><b>✅ Bảng đáp án (AI tự điền):</b></label>
+                <label style="font-size:1.1em; color:#2c3e50"><b>✅ Đáp án (AI tự điền):</b></label>
                 <div style="margin-top:5px; margin-bottom:10px;">
                     <button class="btn-add-row" onclick="addKeyRow()" style="background:#3498db; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer">+ Thêm câu</button>
                     <button class="btn-add-row" onclick="resetKey()" style="background:#95a5a6; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer">Xóa hết</button>
@@ -110,36 +126,23 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
     
-    // --- QUẢN LÝ KEY AN TOÀN (KHÔNG LƯU TRONG CODE) ---
+    // --- QUẢN LÝ KEY ---
     function checkApiKey() {
         let key = localStorage.getItem("MY_GEMINI_KEY");
-        const statusEl = document.getElementById('key-indicator');
-        if (key && key.length > 10) {
-            statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Đã có API Key';
-            statusEl.style.color = "green";
-            return key;
-        } else {
-            statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Chưa có API Key';
-            statusEl.style.color = "orange";
-            return null;
+        if (!key || key.length < 10) {
+            key = prompt("Nhập API Key Google Gemini của bạn:\n(Key sẽ được lưu trong trình duyệt)");
+            if (key) localStorage.setItem("MY_GEMINI_KEY", key.trim());
         }
+        return key;
     }
-
-    // Hàm gọi khi bấm nút Cài đặt hoặc khi chưa có key
     window.resetApiKey = () => {
-        const current = localStorage.getItem("MY_GEMINI_KEY") || "";
-        const newKey = prompt("Nhập Google Gemini API Key của bạn:\n(Key này chỉ lưu trên trình duyệt của bạn, không gửi về server)", current);
-        if (newKey && newKey.trim().length > 10) {
-            localStorage.setItem("MY_GEMINI_KEY", newKey.trim());
-            alert("Đã lưu Key thành công!");
+        if(confirm("Nhập lại Key mới?")) {
+            localStorage.removeItem("MY_GEMINI_KEY");
             checkApiKey();
+            alert("Đã cập nhật Key!");
         }
     }
 
-    // Khởi động kiểm tra key ngay lập tức
-    setTimeout(checkApiKey, 1000);
-
-    // --- CẤU HÌNH FIREBASE ---
     const firebaseConfig = {
       apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE",
       authDomain: "lophoconl.firebaseapp.com",
@@ -162,34 +165,33 @@
 
     window.processImage = async () => {
         let apiKey = checkApiKey();
-        if (!apiKey) {
-            window.resetApiKey(); // Gọi popup nhập key
-            apiKey = checkApiKey(); // Check lại
-            if(!apiKey) return alert("Bạn cần nhập API Key để sử dụng tính năng này.");
-        }
+        if (!apiKey) return alert("Cần có API Key!");
 
         const fileInput = document.getElementById('ai-image-input');
         const file = fileInput.files[0];
         if(!file) return;
 
+        // Lấy Model người dùng chọn
+        const selectedModel = document.getElementById('ai-model-select').value;
+
         const btn = document.getElementById('btn-ai-trigger');
         const status = document.getElementById('ai-status');
         btn.classList.add('loading');
-        btn.innerHTML = `<i class="fas fa-brain fa-spin"></i> Đang phân tích...`;
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang xử lý...`;
         btn.disabled = true;
-        status.innerHTML = `<span style="color:#e67e22">Đang kết nối Gemini AI... (Model: 1.5 Flash)</span>`;
+        status.innerHTML = `<span style="color:#7e57c2">Đang gửi tới <b>${selectedModel}</b>...</span>`;
         
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = async function() {
             const base64String = reader.result.split(',')[1]; 
             
-            // Dùng model chuẩn nhất hiện nay
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            // Dùng model từ dropdown
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
             
             const promptText = `
                 Bạn là giáo viên. Hãy trích xuất đề thi từ ảnh và GIẢI ĐỀ.
-                OUTPUT JSON (duy nhất):
+                OUTPUT JSON (duy nhất, không markdown):
                 {
                     "title": "Tên bài (ngắn)",
                     "html": "Nội dung đề bài dạng HTML (giữ nguyên A,B,C,D trong html)",
@@ -227,14 +229,12 @@
             } catch (error) {
                 console.error(error);
                 status.innerHTML = `<span style="color:#c62828">❌ Lỗi: ${error.message}</span>`;
-                if(error.message.includes("API key")) {
-                    localStorage.removeItem("MY_GEMINI_KEY");
-                    alert("API Key không hợp lệ hoặc đã bị khóa. Vui lòng nhập Key mới.");
-                    checkApiKey();
+                if(error.message.includes("not found")) {
+                    alert("Model này không khả dụng với Key của bạn. Hãy thử chọn 'Gemini 1.5 Flash (001)' hoặc model khác trong danh sách.");
                 }
             } finally {
                 btn.classList.remove('loading');
-                btn.innerHTML = `<i class="fas fa-camera"></i> Tải Ảnh Đề Thi`;
+                btn.innerHTML = `<i class="fas fa-magic"></i> Tải Ảnh & Giải Đề`;
                 btn.disabled = false;
             }
         };
