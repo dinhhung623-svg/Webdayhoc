@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Giáo Viên</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #fff0f5; } /* Màu nền hồng nhạt */
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input, textarea, button { width: 100%; margin-bottom: 10px; padding: 10px; box-sizing: border-box; }
+        button { background: #e91e63; color: white; border: none; cursor: pointer; font-weight: bold;}
+        .post { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; background: #fff; }
+        .student-ans { background: #f9f9f9; padding: 5px; margin-top: 5px; border-left: 3px solid #e91e63; font-size: 0.9em;}
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>👩‍🏫 GIÁO VIÊN - ĐĂNG BÀI</h2>
+    <input type="text" id="title" placeholder="Tiêu đề bài tập">
+    <textarea id="content" rows="4" placeholder="Nội dung câu hỏi..."></textarea>
+    <button onclick="postQuestion()">ĐĂNG BÀI NGAY</button>
+    
+    <hr>
+    <h3>Danh sách bài & Kết quả học sinh:</h3>
+    <div id="list">Đang tải dữ liệu...</div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+    // --- DÁN MÃ FIREBASE CỦA BẠN VÀO ĐÂY ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE",
+        authDomain: "lophoconl.firebaseapp.com",
+        databaseURL: "https://lophoconl-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "lophoconl",
+        storageBucket: "lophoconl.firebasestorage.app",
+        messagingSenderId: "1051247561864",
+        appId: "1:1051247561864:web:43886eee9886cafd59a33d"
+    };
+    // ----------------------------------------
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Đăng bài
+    window.postQuestion = function() {
+        const t = document.getElementById('title').value;
+        const c = document.getElementById('content').value;
+        if(t && c) {
+            push(ref(db, 'questions'), { title: t, content: c, timestamp: Date.now() });
+            alert("Đã đăng!");
+            document.getElementById('title').value = "";
+            document.getElementById('content').value = "";
+        } else alert("Thiếu thông tin!");
+    }
+
+    // Hiển thị bài và lời giải
+    onValue(ref(db, 'questions'), (snap) => {
+        const list = document.getElementById('list');
+        list.innerHTML = "";
+        const data = snap.val();
+        if(!data) return list.innerHTML = "Chưa có bài nào.";
+
+        Object.keys(data).reverse().forEach(key => {
+            const q = data[key];
+            const divId = `ans-${key}`;
+            
+            list.innerHTML += `
+                <div class="post">
+                    <h3>${q.title}</h3>
+                    <p>${q.content}</p>
+                    <div id="${divId}"><i>Đang tải bài làm HS...</i></div>
+                </div>
+            `;
+
+            onValue(ref(db, `answers/${key}`), (ansSnap) => {
+                const aData = ansSnap.val();
+                const aDiv = document.getElementById(divId);
+                if(aDiv) {
+                    aDiv.innerHTML = "<b>Bài làm đã nộp:</b><br>";
+                    if(aData) {
+                        Object.values(aData).forEach(a => {
+                            aDiv.innerHTML += `<div class="student-ans"><strong>${a.name}:</strong> ${a.answer}</div>`;
+                        });
+                    } else {
+                        aDiv.innerHTML += "<i>Chưa có ai nộp.</i>";
+                    }
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
