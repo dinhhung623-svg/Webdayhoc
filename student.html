@@ -3,168 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bài Thi Trực Tuyến</title>
+    <title>Làm Bài Thi Trực Tuyến</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
-        body { 
-            font-family: 'Roboto', sans-serif; 
-            background-color: #f0ebf8; 
-            margin: 0; 
-            padding-bottom: 60px; 
+        :root {
+            --primary: #3f51b5; /* Màu chủ đạo */
+            --accent: #ff4081;  /* Màu điểm nhấn (Timer) */
+            --bg: #f2f5f9;
+            --card-bg: #ffffff;
+            --text: #333;
         }
 
-        .container { max-width: 800px; margin: 0 auto; padding: 15px; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; padding-bottom: 80px; color: var(--text); }
+        .container { max-width: 850px; margin: 0 auto; padding: 15px; }
 
-        /* CARD STYLES */
-        .form-card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
-            margin-bottom: 15px;
-            padding: 24px;
-            transition: 0.3s;
-            border-left: 5px solid transparent;
-        }
-
-        .title-card {
-            border-top: 10px solid #673ab7;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-        }
-
-        .form-title { font-size: 32px; font-weight: 400; color: #202124; margin-bottom: 10px; }
-        .content-card { font-family: 'Times New Roman', serif; font-size: 1.3em; line-height: 1.6; }
-        .content-card img { max-width: 100%; display: block; margin: 10px auto; }
-
-        /* CÂU HỎI */
-        .question-card.active { border-left-color: #4285f4; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .q-title { font-size: 18px; font-weight: 500; margin-bottom: 20px; color: #202124; }
-
-        /* --- PHẦN ĐÁP ÁN (QUAN TRỌNG: XẾP NGANG) --- */
-        .options-row {
-            display: flex;              /* Xếp ngang */
-            flex-direction: row;        /* Hướng ngang */
-            gap: 20px;                  /* Khoảng cách giữa các đáp án */
-            align-items: center;        /* Căn giữa theo chiều dọc */
-            width: 100%;
-        }
-
-        .option-item {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 4px;
-            transition: 0.2s;
-            white-space: nowrap; /* Giữ chữ trên 1 dòng nếu ngắn */
-        }
-        .option-item:hover { background: #f5f5f5; }
-
-        /* RADIO BUTTON CUSTOM */
-        .custom-radio {
-            width: 20px; height: 20px;
-            border: 2px solid #5f6368;
-            border-radius: 50%;
-            margin-right: 10px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0; /* Không bị méo khi co lại */
-        }
-        .custom-radio::after {
-            content: ''; width: 10px; height: 10px;
-            background: #673ab7; border-radius: 50%;
-            display: none;
-        }
-        
-        /* Khi được chọn */
-        .option-item.selected .custom-radio { border-color: #673ab7; }
-        .option-item.selected .custom-radio::after { display: block; }
-        .option-item.selected { background: #e8f0fe; color: #1967d2; font-weight: bold; }
-
-        /* RESPONSIVE: Trên điện thoại thì xếp dọc lại cho dễ nhìn */
-        @media (max-width: 600px) {
-            .options-row { flex-wrap: wrap; } /* Cho phép xuống dòng nếu màn hình bé */
-            .option-item { width: 45%; } /* Mỗi đáp án chiếm 1 nửa màn hình đt */
-        }
-
-        /* --- DASHBOARD --- */
-        #dashboard { padding-top: 50px; text-align: center; }
-        select { padding: 10px; font-size: 16px; border-radius: 4px; width: 100%; max-width: 400px; margin-bottom: 20px; border: 1px solid #dadce0; }
-        .test-list-item { 
-            background: white; padding: 15px; margin: 10px auto; max-width: 600px; 
-            border-radius: 8px; border: 1px solid #dadce0; cursor: pointer; text-align: left;
-        }
-        .btn-google {
-            background-color: #673ab7; color: white;
-            border: none; border-radius: 4px;
-            padding: 10px 24px; font-weight: 500; cursor: pointer;
-            font-size: 14px; transition: 0.2s;
-        }
-        
-        /* TIMER */
+        /* HEADER & TIMER */
         .sticky-header {
             position: fixed; top: 0; left: 0; width: 100%;
             background: white; padding: 10px 20px;
-            border-bottom: 1px solid #dadce0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             display: flex; justify-content: space-between; align-items: center;
-            z-index: 100; display: none; box-sizing: border-box;
+            z-index: 1000; box-sizing: border-box;
         }
-        .timer-badge { font-weight: bold; color: #d93025; background: #fce8e6; padding: 5px 12px; border-radius: 16px; }
+        .exam-info h2 { margin: 0; font-size: 1.1em; color: var(--primary); }
+        .timer-badge { 
+            background: #fce4ec; color: var(--accent); font-weight: bold; 
+            padding: 6px 15px; border-radius: 20px; border: 1px solid #f8bbd0;
+            display: flex; align-items: center; gap: 5px;
+        }
 
+        /* KHUNG ĐỀ BÀI */
+        .content-card {
+            background: var(--card-bg); border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 30px; margin-top: 70px; margin-bottom: 20px;
+            font-family: 'Times New Roman', serif; font-size: 1.3em; line-height: 1.6;
+        }
+        .content-card img { max-width: 100%; display: block; margin: 10px auto; }
+
+        /* --- DẢI CHỌN ĐÁP ÁN (PHONG CÁCH MỚI) --- */
+        .answer-strip-container {
+            display: flex; flex-direction: column; gap: 10px;
+        }
+
+        .question-strip {
+            background: white;
+            border-radius: 8px;
+            padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            border-left: 5px solid transparent;
+            transition: 0.2s;
+        }
+
+        .question-strip:hover { transform: translateX(5px); }
+        .question-strip.active { border-left-color: var(--primary); background: #e8eaf6; }
+
+        .q-number { 
+            font-weight: bold; font-size: 1.1em; color: #555; width: 80px; 
+            flex-shrink: 0;
+        }
+
+        /* HÀNG NÚT A B C D */
+        .options-row {
+            display: flex; gap: 15px; flex: 1; justify-content: flex-end;
+        }
+
+        .opt-btn {
+            width: 50px; height: 40px;
+            border: 2px solid #ccc; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; cursor: pointer; transition: 0.2s;
+            background: white; color: #777;
+        }
+
+        .opt-btn:hover { border-color: var(--primary); color: var(--primary); background: #f5f5f5; }
+
+        /* KHI CHỌN */
+        .opt-btn.selected {
+            background: var(--primary); color: white; border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(63, 81, 181, 0.3); transform: scale(1.1);
+        }
+
+        /* Input điền từ */
+        .input-fill {
+            flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; outline: none;
+        }
+        .input-fill:focus { border-color: var(--primary); }
+
+        /* RESPONSIVE MOBILE */
+        @media (max-width: 600px) {
+            .question-strip { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .options-row { width: 100%; justify-content: space-between; }
+            .opt-btn { flex: 1; }
+        }
+
+        /* DASHBOARD */
+        #dashboard { padding-top: 50px; text-align: center; }
+        .dash-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
+        select, input[type="text"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .btn-main { background: var(--primary); color: white; padding: 12px 30px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; }
+        .test-item { text-align: left; padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .test-item:hover { background: #f9f9f9; color: var(--primary); }
+
+        /* FOOTER */
+        .footer-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: white; padding: 15px; text-align: center;
+            border-top: 1px solid #eee; z-index: 999;
+        }
+        .btn-submit { background: #d32f2f; color: white; padding: 10px 40px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; }
+
+        /* MODAL */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-box { background: white; padding: 30px; border-radius: 12px; text-align: center; width: 350px; }
+        .score-big { font-size: 3em; color: var(--primary); font-weight: bold; margin: 10px 0; }
+        
         .hidden { display: none !important; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 999; }
-        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 400px; text-align: center; }
     </style>
 </head>
 <body>
 
-<div id="dashboard">
-    <h1 style="color:#202124;">Hệ thống thi trắc nghiệm</h1>
-    <select id="class-select" onchange="loadTests()">
-        <option value="">-- Chọn lớp học --</option>
-    </select>
-    <div id="test-list"></div>
-    
-    <div id="student-info" class="hidden" style="background:white; padding:20px; max-width:600px; margin:20px auto; border-radius:8px; border:1px solid #dadce0;">
-        <h3 style="margin-top:0">Thông tin học sinh</h3>
-        <input type="text" id="student-name" placeholder="Nhập họ tên..." style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ddd; border-radius:4px;">
-        <button class="btn-google" onclick="enterExam()">BẮT ĐẦU LÀM BÀI</button>
+<div id="dashboard" class="container">
+    <div class="dash-card">
+        <h2 style="color:var(--primary); margin-top:0"><i class="fas fa-laptop-code"></i> THI TRỰC TUYẾN</h2>
+        <select id="class-select" onchange="loadTests()">
+            <option value="">-- Chọn lớp học --</option>
+        </select>
+        <div id="test-list" style="margin-top:10px; max-height:250px; overflow-y:auto; border:1px solid #eee; border-radius:6px;">
+            <div style="padding:20px; color:#999">Vui lòng chọn lớp.</div>
+        </div>
+        
+        <div id="student-info" class="hidden" style="margin-top:20px;">
+            <input type="text" id="student-name" placeholder="Nhập Họ và Tên của em...">
+            <button class="btn-main" onclick="enterExam()">BẮT ĐẦU LÀM BÀI</button>
+        </div>
     </div>
 </div>
 
 <div id="exam-app" class="hidden">
-    <div class="sticky-header" style="display:flex">
-        <span style="font-weight:bold; color:#5f6368" id="header-title">Bài thi</span>
-        <span class="timer-badge" id="timer">45:00</span>
+    <div class="sticky-header">
+        <div class="exam-info">
+            <h2 id="exam-title">Bài Thi</h2>
+            <small id="student-display" style="color:#666"></small>
+        </div>
+        <div class="timer-badge"><i class="far fa-clock"></i> <span id="timer">45:00</span></div>
     </div>
 
-    <div class="container" style="margin-top: 60px;">
-        <div class="form-card title-card">
-            <div class="form-title" id="exam-title">Tiêu đề bài thi</div>
-            <div style="color:#5f6368">Học sinh: <b id="s-name-display"></b></div>
-        </div>
-
-        <div class="form-card content-card">
-            <div style="border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:15px; font-weight:bold; color:#673ab7;">ĐỀ BÀI</div>
+    <div class="container">
+        <div class="content-card">
+            <div style="border-bottom: 2px solid #eee; padding-bottom:10px; margin-bottom:15px; font-weight:bold; color:var(--primary)">
+                <i class="fas fa-file-alt"></i> NỘI DUNG ĐỀ THI
+            </div>
             <div id="paper-content" class="ql-editor"></div>
         </div>
 
-        <div id="questions-container"></div>
+        <h3 style="margin: 0 0 15px 0; color:#555;">CHỌN ĐÁP ÁN:</h3>
+        <div id="answer-container" class="answer-strip-container">
+            </div>
+    </div>
 
-        <div style="text-align:center; margin-top:30px;">
-            <button class="btn-google" style="padding:12px 40px; font-size:16px;" onclick="submitExam()">NỘP BÀI</button>
-        </div>
+    <div class="footer-bar">
+        <button class="btn-submit" onclick="submitExam()">NỘP BÀI THI</button>
     </div>
 </div>
 
 <div id="result-modal" class="modal">
-    <div class="modal-content">
-        <h2 style="color:#673ab7">Kết quả</h2>
-        <div style="font-size:40px; font-weight:bold; color:#202124;" id="final-score">0</div>
-        <p id="final-msg">Chi tiết kết quả</p>
-        <button class="btn-google" onclick="location.reload()">Thoát</button>
+    <div class="modal-box">
+        <h2>KẾT QUẢ</h2>
+        <div class="score-big" id="final-score">10</div>
+        <p id="final-msg">Bạn làm rất tốt!</p>
+        <button class="btn-main" onclick="location.reload()" style="background:#333">Thoát</button>
     </div>
 </div>
 
@@ -190,6 +202,7 @@
     let selectedCid = null;
     let selectedAid = null;
 
+    // --- DASHBOARD ---
     onValue(ref(db, 'classes'), snap => {
         const sel = document.getElementById('class-select');
         sel.innerHTML = '<option value="">-- Chọn lớp học --</option>';
@@ -204,7 +217,7 @@
         if(!cid) return list.innerHTML = "";
         selectedCid = cid;
 
-        list.innerHTML = "<div style='padding:20px; color:#666'>Đang tải...</div>";
+        list.innerHTML = "<div style='padding:20px'>Đang tải...</div>";
         onValue(ref(db, `assignments/${cid}`), snap => {
             list.innerHTML = "";
             const d = snap.val();
@@ -213,12 +226,11 @@
             Object.keys(d).reverse().forEach(aid => {
                 const item = d[aid];
                 const div = document.createElement('div');
-                div.className = 'test-list-item';
+                div.className = 'test-item';
                 div.innerHTML = `<b>${item.title}</b>`;
                 div.onclick = () => {
-                    document.querySelectorAll('.test-list-item').forEach(e => e.style.borderColor = '#dadce0');
-                    div.style.borderColor = '#673ab7';
-                    div.style.backgroundColor = '#f3e5f5';
+                    document.querySelectorAll('.test-item').forEach(e => e.style.background = 'white');
+                    div.style.background = '#e8eaf6';
                     currentData = item;
                     selectedAid = aid;
                     document.getElementById('student-info').classList.remove('hidden');
@@ -228,26 +240,26 @@
         });
     }
 
+    // --- VÀO THI ---
     window.enterExam = () => {
         const name = document.getElementById('student-name').value.trim();
         if(!name) return alert("Vui lòng nhập tên!");
-        document.getElementById('s-name-display').innerText = name;
+        document.getElementById('student-display').innerText = name;
         
         try { currentKeyMap = JSON.parse(currentData.correctAnswer); } catch(e) { currentKeyMap = {}; }
         
         document.getElementById('dashboard').classList.add('hidden');
         document.getElementById('exam-app').classList.remove('hidden');
         document.getElementById('exam-title').innerText = currentData.title;
-        document.getElementById('header-title').innerText = currentData.title;
         document.getElementById('paper-content').innerHTML = currentData.html || currentData.content;
         
-        renderForm();
+        renderStripLayout();
         startTimer(45 * 60);
     }
 
-    // --- RENDER DẠNG NGANG ---
-    function renderForm() {
-        const container = document.getElementById('questions-container');
+    // --- RENDER GIAO DIỆN (NÚT BẤM TRÊN DÒNG) ---
+    function renderStripLayout() {
+        const container = document.getElementById('answer-container');
         container.innerHTML = "";
         
         const keys = Object.keys(currentKeyMap).sort((a,b)=>parseInt(a)-parseInt(b));
@@ -255,55 +267,52 @@
         keys.forEach(num => {
             const info = currentKeyMap[num];
             
-            const card = document.createElement('div');
-            card.className = 'form-card question-card';
-            card.id = `q-card-${num}`;
-            card.onclick = () => {
-                document.querySelectorAll('.question-card').forEach(c => c.classList.remove('active'));
-                card.classList.add('active');
-            };
-
-            let html = `<div class="q-title"><b>Câu ${num}.</b> <span style="color:red">*</span></div>`;
+            // Tạo dải câu hỏi
+            const strip = document.createElement('div');
+            strip.className = 'question-strip';
+            strip.id = `strip-${num}`;
+            
+            let html = `<div class="q-number">Câu ${num}:</div>`;
             
             if(info.type === 'mcq') {
-                // CONTAINER CHO CÁC OPTION NẰM NGANG
-                html += `<div class="options-row">`; 
-                
+                html += `<div class="options-row" id="opts-${num}" data-ans="">`;
                 ['A', 'B', 'C', 'D'].forEach(opt => {
-                    html += `
-                        <div class="option-item" onclick="selectRadio('${num}', '${opt}')" id="opt-${num}-${opt}">
-                            <div class="custom-radio"></div>
-                            <span>${opt}</span>
-                        </div>
-                    `;
+                    html += `<div class="opt-btn" onclick="selectOpt('${num}', '${opt}')">${opt}</div>`;
                 });
-                
-                html += `</div>`; // Đóng container
-                html += `<input type="hidden" id="ans-${num}" value="">`;
+                html += `</div>`;
             } else {
-                html += `<input type="text" style="width:100%; border:none; border-bottom:1px solid #ccc; padding:5px; outline:none;" id="ans-${num}" placeholder="Nhập câu trả lời">`;
+                html += `<input type="text" class="input-fill" id="ans-${num}" placeholder="Nhập câu trả lời..." oninput="highlightStrip('${num}')">`;
             }
             
-            card.innerHTML = html;
-            container.appendChild(card);
+            strip.innerHTML = html;
+            container.appendChild(strip);
         });
     }
 
-    window.selectRadio = (num, val) => {
-        // Reset
-        const options = document.querySelectorAll(`#q-card-${num} .option-item`);
-        options.forEach(opt => opt.classList.remove('selected'));
+    window.selectOpt = (num, val) => {
+        const parent = document.getElementById(`opts-${num}`);
+        const btns = parent.getElementsByClassName('opt-btn');
         
-        // Select
-        const selected = document.getElementById(`opt-${num}-${val}`);
-        if(selected) selected.classList.add('selected');
+        // Reset style
+        for(let btn of btns) btn.classList.remove('selected');
         
-        // Save
-        document.getElementById(`ans-${num}`).value = val;
+        // Select logic
+        // Tìm nút vừa bấm
+        for(let btn of btns) {
+            if(btn.innerText === val) btn.classList.add('selected');
+        }
+        
+        parent.setAttribute('data-ans', val);
+        highlightStrip(num);
     }
 
+    window.highlightStrip = (num) => {
+        document.getElementById(`strip-${num}`).classList.add('active');
+    }
+
+    // --- NỘP BÀI ---
     window.submitExam = () => {
-        if(!confirm("Nộp bài ngay?")) return;
+        if(!confirm("Nộp bài thi?")) return;
         const name = document.getElementById('student-name').value;
         let correct = 0;
         let total = 0;
@@ -311,12 +320,19 @@
         
         Object.keys(currentKeyMap).forEach(num => {
             const info = currentKeyMap[num];
-            const userAns = document.getElementById(`ans-${num}`).value.trim();
+            let userAns = "";
+
+            if(info.type === 'mcq') {
+                userAns = document.getElementById(`opts-${num}`).getAttribute('data-ans') || "";
+            } else {
+                userAns = document.getElementById(`ans-${num}`).value.trim();
+            }
             
             if(userAns.toLowerCase() === info.ans.toLowerCase()) {
                 if(info.type !== 'essay') correct++;
             }
             if(info.type !== 'essay') total++;
+            
             log += `${num}. ${userAns} | `;
         });
 
