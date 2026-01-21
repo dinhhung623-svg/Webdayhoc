@@ -42,3 +42,211 @@
         .toggle-btn { background: #ecf0f1; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; color: #2c3e50; font-weight: 500; font-size: 0.9em; display: inline-flex; align-items: center; gap: 5px; }
         .toggle-btn:hover { background: #bdc3c7; }
     </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h3 style="margin:0"><i class="fas fa-chalkboard-teacher"></i> Giáo Viên</h3>
+    </div>
+    <div id="class-list" style="flex:1; overflow-y:auto; padding-top:10px;"></div>
+    <button onclick="addClass()" style="padding:15px; background:#e67e22; border:none; color:white; font-weight:bold; cursor:pointer;">+ Thêm Lớp Mới</button>
+</div>
+
+<div class="main-content">
+    <div id="welcome" style="text-align:center; margin-top:100px; color:#7f8c8d;">
+        <i class="fas fa-school" style="font-size:4em; margin-bottom:20px;"></i>
+        <h2>Chào thầy/cô!</h2>
+        <p>Chọn lớp bên trái để quản lý và xem điểm.</p>
+    </div>
+
+    <div id="manager" class="hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 id="class-name" style="color:#2c3e50; margin:0;"></h2>
+            <span style="font-size:0.9em; color:#7f8c8d"><i class="fas fa-circle" style="color:#2ecc71; font-size:0.6em"></i> Live Mode</span>
+        </div>
+        <hr style="border:0; border-top:1px solid #ddd; margin: 20px 0;">
+
+        <div class="editor-box">
+            <h3 style="margin-top:0; color:#2980b9;"><i class="fas fa-edit"></i> Đăng Bài Tập</h3>
+            <input type="text" id="a-title" placeholder="Tiêu đề (VD: Unit 8 - Kiểm tra 15 phút)">
+            <label><b>Nội dung câu hỏi:</b></label>
+            <textarea id="a-content" rows="5" placeholder="Copy câu hỏi từ Word dán vào đây..."></textarea>
+            <label><b>🔑 Đáp án (để chấm tự động):</b></label>
+            <textarea id="a-key" rows="1" placeholder="VD: 1A 2B 3C 4D..."></textarea>
+            <button class="btn-primary" onclick="addAssignment()">Đăng Bài</button>
+        </div>
+
+        <h3>📚 Danh Sách Bài Tập & Kết Quả</h3>
+        <div id="list">Loading...</div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+    // --- CẤU HÌNH ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE",
+      authDomain: "lophoconl.firebaseapp.com",
+      databaseURL: "https://lophoconl-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "lophoconl",
+      storageBucket: "lophoconl.firebasestorage.app",
+      messagingSenderId: "1051247561864",
+      appId: "1:1051247561864:web:43886eee9886cafd59a33d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    let curClass = null;
+
+    // --- LOGIC LỚP HỌC ---
+    window.addClass = () => { const n = prompt("Tên lớp:"); if(n) push(ref(db, 'classes'), {name: n}); }
+    
+    window.delClass = (e, id) => { 
+        e.stopPropagation(); 
+        if(confirm("CẢNH BÁO: Xóa lớp sẽ xóa hết bài tập và điểm số!\n\nBạn chắc chắn chứ?")) { 
+            remove(ref(db, `classes/${id}`)); remove(ref(db, `assignments/${id}`)); remove(ref(db, `answers/${id}`)); 
+            if(curClass===id) location.reload(); 
+        }
+    }
+    
+    window.editClass = (e, id, old) => { e.stopPropagation(); const n = prompt("Tên mới:", old); if(n) update(ref(db, `classes/${id}`), {name: n}); }
+
+    onValue(ref(db, 'classes'), snap => {
+        document.getElementById('class-list').innerHTML = "";
+        const data = snap.val();
+        if(data) Object.keys(data).forEach(k => {
+            document.getElementById('class-list').innerHTML += `
+                <div class="class-item ${curClass===k?'active':''}" onclick="selClass('${k}', '${data[k].name}')">
+                    <span style="font-weight:500">${data[k].name}</span>
+                    <div>
+                        <button class="btn-icon" onclick="editClass(event, '${k}', '${data[k].name}')" title="Sửa tên"><i class="fas fa-pen"></i></button>
+                        <button class="btn-icon" onclick="delClass(event, '${k}')" title="Xóa lớp" style="color:#ff6b6b"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`;
+        });
+    });
+
+    window.selClass = (k, n) => {
+        curClass = k;
+        document.getElementById('welcome').classList.add('hidden');
+        document.getElementById('manager').classList.remove('hidden');
+        document.getElementById('class-name').innerText = n;
+        loadAss(k);
+        const items = document.querySelectorAll('.class-item');
+        items.forEach(i => i.classList.remove('active'));
+    }
+
+    // --- LOGIC BÀI TẬP ---
+    window.addAssignment = () => {
+        if(!curClass) return alert("Chọn lớp trước!");
+        const t = document.getElementById('a-title').value;
+        const c = document.getElementById('a-content').value;
+        const k = document.getElementById('a-key').value;
+        if(t && c) {
+            push(ref(db, `assignments/${curClass}`), { title: t, content: c, correctAnswer: k, timestamp: Date.now() });
+            alert("Đã đăng!");
+            document.getElementById('a-title').value=""; document.getElementById('a-content').value=""; document.getElementById('a-key').value="";
+        } else alert("Thiếu tiêu đề hoặc nội dung!");
+    }
+
+    window.delAss = (id) => { if(confirm("Xóa bài này?")) remove(ref(db, `assignments/${curClass}/${id}`)); }
+
+    function loadAss(cid) {
+        onValue(ref(db, `assignments/${cid}`), snap => {
+            const list = document.getElementById('list');
+            list.innerHTML = "";
+            const d = snap.val();
+            if(!d) return list.innerHTML = "<p style='text-align:center; color:#999'>Lớp này chưa có bài nào.</p>";
+            
+            Object.keys(d).reverse().forEach(k => {
+                const i = d[k];
+                const keyDisplay = i.correctAnswer ? `<div class="key-view"><i class="fas fa-key"></i> Key: ${i.correctAnswer}</div>` : '';
+                
+                // Tạo div chứa bài làm của học sinh (mặc định ẩn)
+                list.innerHTML += `
+                    <div class="assignment-card">
+                        <div style="float:right">
+                             <button onclick="delAss('${k}')" style="background:none; border:none; color:#c0392b; cursor:pointer;"><i class="fas fa-trash"></i> Xóa bài</button>
+                        </div>
+                        <h3 style="margin-top:0; color:#2c3e50;">${i.title}</h3>
+                        <div class="content-view">${i.content}</div>
+                        ${keyDisplay}
+                        
+                        <div style="margin-top:15px;">
+                            <button class="toggle-btn" onclick="toggleSubmissions('${k}')">
+                                <i class="fas fa-list"></i> Xem bài nộp của HS
+                            </button>
+                        </div>
+
+                        <div id="subs-${k}" class="submission-area">
+                            <i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu bài làm...
+                        </div>
+                    </div>`;
+            });
+        });
+    }
+
+    // --- LOGIC XEM BÀI LÀM ---
+    // Gắn vào window để gọi được từ nút HTML
+    window.toggleSubmissions = function(assId) {
+        const subDiv = document.getElementById(`subs-${assId}`);
+        // Toggle ẩn hiện
+        if (subDiv.style.display === "block") {
+            subDiv.style.display = "none";
+            return;
+        }
+        subDiv.style.display = "block";
+        
+        // Gọi dữ liệu từ answers
+        onValue(ref(db, `answers/${curClass}/${assId}`), (snap) => {
+            const data = snap.val();
+            if(!data) {
+                subDiv.innerHTML = "<p style='color:#7f8c8d; font-style:italic'>Chưa có học sinh nào nộp bài.</p>";
+                return;
+            }
+
+            let html = `
+                <table class="student-table">
+                    <thead>
+                        <tr>
+                            <th width="20%">Học sinh</th>
+                            <th width="15%">Điểm số</th>
+                            <th width="45%">Bài làm chi tiết</th>
+                            <th width="20%">Thời gian</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            Object.values(data).forEach(ans => {
+                // Xử lý màu sắc điểm số
+                let badgeClass = 'score-low';
+                if(ans.percent >= 80) badgeClass = 'score-high';
+                else if(ans.percent >= 50) badgeClass = 'score-med';
+                
+                const scoreDisplay = ans.score ? 
+                    `<span class="score-badge ${badgeClass}">${ans.score} (${ans.percent}%)</span>` : 
+                    `<span class="score-badge">Chưa chấm</span>`;
+
+                const time = new Date(ans.timestamp).toLocaleString('vi-VN');
+                
+                html += `
+                    <tr>
+                        <td><b>${ans.name}</b></td>
+                        <td>${scoreDisplay}</td>
+                        <td style="font-family:monospace; color:#444;">${ans.answer}</td>
+                        <td style="color:#888; font-size:0.85em;">${time}</td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            subDiv.innerHTML = html;
+        });
+    }
+</script>
+</body>
+</html>
