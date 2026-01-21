@@ -3,52 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giáo Viên - Tạo Trắc Nghiệm</title>
+    <title>Giáo Viên - Quản Lý Lớp</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ... (Các phần Sidebar giữ nguyên) ... */
+        /* GIỮ NGUYÊN CSS CŨ CHO ĐẸP, CHỈ THÊM PHẦN BUILDER MỚI */
+        body { font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; margin: 0; background: #f0f2f5; }
+        .sidebar { width: 280px; background: #2c3e50; color: white; display: flex; flex-direction: column; }
+        .class-item { padding: 12px; margin: 5px; background: #34495e; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between; color: white;}
+        .class-item:hover, .class-item.active { background: #16a085; }
         
-        /* Cập nhật phần hiển thị nội dung chính */
-        .main-content { flex: 1; padding: 30px; overflow-y: auto; background: #f5f5f5; }
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; background: #ecf0f1; }
+        .editor-box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 1000px; margin: 0 auto 30px auto; }
         
-        /* Form nhập liệu */
-        .editor-box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; max-width: 1000px; margin-left: auto; margin-right: auto;}
+        input, textarea, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn-primary { background: #2980b9; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
         
-        /* THẺ BÀI TẬP (VIEW MODE) */
-        .assignment-card { 
-            background: white; 
-            padding: 30px 40px; /* Padding rộng */
-            margin-bottom: 30px; 
-            border-radius: 4px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
-            border: none;
-            max-width: 1000px; /* Giới hạn độ rộng để dễ đọc */
-            margin-left: auto; 
-            margin-right: auto;
-            position: relative;
-        }
+        /* --- CSS CHO BỘ TẠO ĐÁP ÁN --- */
+        .key-builder-area { border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: #fafafa; margin-top: 10px; max-height: 400px; overflow-y: auto; }
+        .key-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; background: white; padding: 8px; border: 1px solid #eee; border-radius: 4px; }
+        .key-num { width: 40px; font-weight: bold; text-align: center; color: #555; }
+        .key-type { width: 150px; }
+        .key-val { flex: 1; }
+        .btn-del-row { background: #ffcdd2; color: #c62828; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; }
+        .btn-add-row { background: #27ae60; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; font-size: 0.9em; margin-right: 5px; }
+        .toolbar { margin-bottom: 10px; display: flex; gap: 10px; }
 
-        .content-view { 
-            white-space: pre-wrap; 
-            font-family: 'Times New Roman', Times, serif; 
-            font-size: 13pt; /* Đồng bộ font 13pt */
-            line-height: 1.5;
-            color: #000;
-            margin: 15px 0;
-            text-align: justify;
-        }
-
-        /* Nút xóa bài */
-        .btn-delete {
-            float: right;
-            background: #ffebee; color: #c62828; border: 1px solid #ffcdd2;
-            padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.9em;
-        }
-        .btn-delete:hover { background: #ffcdd2; }
-        
-        /* Các class khác giữ nguyên */
+        /* Giao diện xem lại */
+        .assignment-card { background: white; padding: 30px 40px; margin-bottom: 30px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 1000px; margin: 0 auto 30px auto; position: relative; }
+        .content-view { white-space: pre-wrap; font-family: 'Times New Roman', serif; font-size: 13pt; line-height: 1.5; margin: 15px 0; text-align: justify; }
         .hidden { display: none !important; }
-        /* ... */
     </style>
 </head>
 <body>
@@ -61,28 +44,36 @@
 
 <div class="main-content">
     <div id="welcome" style="text-align:center; margin-top:100px; color:#7f8c8d;">
-        <i class="fas fa-school" style="font-size:4em;"></i><h2>Chọn lớp để bắt đầu</h2>
+        <h2>Chọn lớp để bắt đầu</h2>
     </div>
 
     <div id="manager" class="hidden">
         <h2 id="class-name" style="color:#2c3e50;"></h2>
         
         <div class="editor-box">
-            <h3 style="margin-top:0; color:#2980b9;">📝 Soạn Trắc Nghiệm</h3>
-            <input type="text" id="a-title" placeholder="Tiêu đề (VD: Unit 1 - Test)">
+            <h3 style="margin-top:0; color:#2980b9;">📝 Soạn Bài Tập</h3>
+            <input type="text" id="a-title" placeholder="Tiêu đề bài tập">
             
             <label><b>1. Nội dung đề bài (Copy từ Word):</b></label>
             <textarea id="a-content" rows="6" placeholder="Dán nội dung câu hỏi vào đây..."></textarea>
             
-            <label style="color:#c0392b;"><b>2. Đáp án đúng (BẮT BUỘC):</b></label>
-            <textarea id="a-key" rows="2" placeholder="Nhập đáp án để máy tạo nút bấm cho HS. VD: 1A 2B 3C 4D..."></textarea>
-            <small><i>💡 Máy sẽ đếm số lượng đáp án ở đây để tạo ra bấy nhiêu dòng trắc nghiệm cho học sinh.</i></small>
+            <label style="margin-top: 15px; display:block; color:#c0392b"><b>2. Cấu hình đáp án (Từng câu):</b></label>
+            
+            <div class="toolbar">
+                <button class="btn-add-row" onclick="addKeyRow()"><i class="fas fa-plus"></i> Thêm 1 câu</button>
+                <button class="btn-add-row" style="background:#3498db" onclick="addBulk(5)">+ 5 câu</button>
+                <button class="btn-add-row" style="background:#95a5a6" onclick="resetKey()"><i class="fas fa-redo"></i> Làm lại</button>
+            </div>
 
-            <button class="btn-primary" onclick="addAssignment()">Đăng Bài</button>
+            <div id="key-container" class="key-builder-area">
+                <div style="text-align:center; color:#999; padding:20px;">Chưa có câu hỏi nào. Hãy bấm "Thêm 1 câu".</div>
+            </div>
+
+            <button class="btn-primary" onclick="addAssignment()">ĐĂNG BÀI TẬP</button>
         </div>
 
         <h3>📚 Danh sách bài tập:</h3>
-        <div id="list">Đang tải...</div>
+        <div id="list">Loading...</div>
     </div>
 </div>
 
@@ -103,17 +94,88 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     let curClass = null;
+    let questionCount = 0;
 
+    // --- LOGIC KEY BUILDER ---
+    
+    // Thêm 1 dòng cấu hình đáp án
+    window.addKeyRow = () => {
+        const container = document.getElementById('key-container');
+        // Nếu đang hiện thông báo trống thì xóa đi
+        if(container.innerHTML.includes('Chưa có câu hỏi')) container.innerHTML = "";
+
+        questionCount++;
+        const rowId = `row-${questionCount}`;
+        
+        const html = `
+            <div class="key-row" id="${rowId}">
+                <div class="key-num">#${questionCount}</div>
+                <select class="key-type" onchange="changeInputType('${rowId}')">
+                    <option value="mcq">Trắc nghiệm (A,B,C,D)</option>
+                    <option value="fill">Điền từ (Ngắn)</option>
+                    <option value="essay">Tự luận (Câu dài)</option>
+                </select>
+                
+                <div class="key-val" id="val-${rowId}">
+                    <select class="ans-input" style="width:100%">
+                        <option value="A">Đáp án A</option>
+                        <option value="B">Đáp án B</option>
+                        <option value="C">Đáp án C</option>
+                        <option value="D">Đáp án D</option>
+                    </select>
+                </div>
+
+                <button class="btn-del-row" onclick="removeRow('${rowId}')"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+        // Scroll xuống dưới cùng
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // Thêm nhiều dòng cùng lúc
+    window.addBulk = (num) => { for(let i=0; i<num; i++) addKeyRow(); }
+
+    // Xóa dòng
+    window.removeRow = (id) => {
+        document.getElementById(id).remove();
+        // (Không giảm questionCount để tránh trùng ID, thứ tự câu sẽ được đánh lại khi Lưu)
+    }
+    
+    window.resetKey = () => {
+        document.getElementById('key-container').innerHTML = "<div style='text-align:center; color:#999; padding:20px;'>Chưa có câu hỏi nào.</div>";
+        questionCount = 0;
+    }
+
+    // Thay đổi ô nhập liệu khi chọn loại câu hỏi khác nhau
+    window.changeInputType = (rowId) => {
+        const row = document.getElementById(rowId);
+        const type = row.querySelector('.key-type').value;
+        const valDiv = document.getElementById(`val-${rowId}`);
+
+        if(type === 'mcq') {
+            valDiv.innerHTML = `
+                <select class="ans-input" style="width:100%">
+                    <option value="A">Đáp án A</option>
+                    <option value="B">Đáp án B</option>
+                    <option value="C">Đáp án C</option>
+                    <option value="D">Đáp án D</option>
+                </select>`;
+        } else if(type === 'fill') {
+            valDiv.innerHTML = `<input type="text" class="ans-input" placeholder="Nhập từ chính xác (VD: however)">`;
+        } else {
+            valDiv.innerHTML = `<input type="text" class="ans-input" placeholder="Gợi ý đáp án (để HS đối chiếu)">`;
+        }
+    }
+
+    // --- LOGIC CRUD ---
     window.addClass = () => { const n = prompt("Tên lớp:"); if(n) push(ref(db, 'classes'), {name: n}); }
     
-    // Tải danh sách lớp
     onValue(ref(db, 'classes'), snap => {
         const list = document.getElementById('class-list');
         list.innerHTML = "";
-        const data = snap.val();
-        if(data) Object.keys(data).forEach(k => {
-            list.innerHTML += `<div class="class-item" onclick="selClass('${k}', '${data[k].name}')"><span>${data[k].name}</span> <i class="fas fa-trash" onclick="delClass(event,'${k}')"></i></div>`;
-        });
+        const d = snap.val();
+        if(d) Object.keys(d).forEach(k => list.innerHTML += `<div class="class-item" onclick="selClass('${k}', '${d[k].name}')"><span>${d[k].name}</span> <i class="fas fa-trash" onclick="delClass(event,'${k}')"></i></div>`);
     });
 
     window.selClass = (k, n) => {
@@ -123,24 +185,47 @@
         document.getElementById('class-name').innerText = n;
         loadAss(k);
     }
-    
-    window.delClass = (e, k) => { e.stopPropagation(); if(confirm("Xóa lớp này?")) remove(ref(db, `classes/${k}`)); }
+    window.delClass = (e, k) => { e.stopPropagation(); if(confirm("Xóa lớp?")) remove(ref(db, `classes/${k}`)); }
 
+    // ĐĂNG BÀI (QUAN TRỌNG)
     window.addAssignment = () => {
         if(!curClass) return alert("Chọn lớp trước!");
-        const t = document.getElementById('a-title').value;
-        const c = document.getElementById('a-content').value;
-        const k = document.getElementById('a-key').value;
+        const title = document.getElementById('a-title').value;
+        const content = document.getElementById('a-content').value;
+        
+        // 1. Thu thập dữ liệu từ Bộ tạo đáp án
+        const rows = document.querySelectorAll('.key-row');
+        const keyMap = {};
+        let index = 1; // Đánh số lại từ 1 cho đẹp
 
-        if(t && c && k) {
+        rows.forEach(row => {
+            const type = row.querySelector('.key-type').value;
+            const input = row.querySelector('.ans-input');
+            const ans = input.value.trim();
+
+            if(ans) {
+                keyMap[index] = { type: type, ans: ans };
+                index++;
+            }
+        });
+
+        if(title && content && Object.keys(keyMap).length > 0) {
+            // Chuyển keyMap thành JSON string để lưu vào Firebase
+            const jsonKey = JSON.stringify(keyMap);
+            
             push(ref(db, `assignments/${curClass}`), {
-                title: t, content: c, correctAnswer: k, timestamp: Date.now()
+                title: title,
+                content: content,
+                correctAnswer: jsonKey, // Lưu dạng JSON
+                timestamp: Date.now()
             });
-            alert("Đã đăng!");
-            document.getElementById('a-title').value="";
-            document.getElementById('a-content').value="";
-            document.getElementById('a-key').value="";
-        } else alert("Vui lòng nhập đủ Tiêu đề, Nội dung và Đáp án!");
+            alert("Đã đăng bài thành công!");
+            document.getElementById('a-title').value = "";
+            document.getElementById('a-content').value = "";
+            resetKey();
+        } else {
+            alert("Vui lòng nhập Tiêu đề, Nội dung và ít nhất 1 câu hỏi!");
+        }
     }
 
     window.delAss = (id) => { if(confirm("Xóa bài này?")) remove(ref(db, `assignments/${curClass}/${id}`)); }
@@ -158,8 +243,10 @@
                     <div class="assignment-card">
                         <button onclick="delAss('${k}')" style="float:right; color:red; border:none; background:none; cursor:pointer;">Xóa</button>
                         <h3>${i.title}</h3>
-                        <div style="background:#f9f9f9; padding:10px; white-space:pre-wrap;">${i.content}</div>
-                        <div style="margin-top:5px; color:green; font-weight:bold;">Key: ${i.correctAnswer}</div>
+                        <div class="content-view">${i.content}</div>
+                        <div style="font-size:0.9em; color:green; background:#e8f5e9; padding:5px;">
+                            <i class="fas fa-check-circle"></i> Đã cấu hình đáp án tự động
+                        </div>
                     </div>`;
             });
         });

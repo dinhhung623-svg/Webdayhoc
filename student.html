@@ -3,97 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Học Sinh - Làm Bài Thi</title>
+    <title>Học Sinh - Làm Bài</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* GIAO DIỆN NỀN XÁM GIỐNG WORD - PHIÊN BẢN RỘNG */
+        /* CSS GIỮ NGUYÊN BẢN RỘNG A4 */
         body { font-family: 'Segoe UI', sans-serif; background: #e0e0e0; padding: 20px; margin: 0; }
-        
-        .container { 
-            max-width: 1200px; /* Nới rộng khung ra 1200px */
-            width: 95%; /* Chiếm 95% màn hình nếu xem trên điện thoại */
-            margin: 0 auto; 
-            background: transparent;
-        }
-
-        /* HEADER */
-        .header-section {
-            background: white; padding: 20px; border-radius: 8px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px;
-            display: flex; flex-direction: column; align-items: center;
-        }
-
+        .container { max-width: 1200px; width: 95%; margin: 0 auto; }
+        .header-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; }
         select { width: 100%; padding: 12px; font-size: 1.1em; border: 2px solid #009688; border-radius: 5px; max-width: 500px;}
         
-        /* HIỆU ỨNG TỜ GIẤY A4 */
-        .post { 
-            background: white; 
-            padding: 30px 40px; /* Giảm padding để có thêm diện tích cho chữ */
-            margin-bottom: 30px; 
-            border-radius: 4px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            position: relative;
-        }
-
-        /* ĐỊNH DẠNG VĂN BẢN ĐỀ BÀI */
-        .content { 
-            white-space: pre-wrap; /* Giữ nguyên định dạng khoảng trắng */
-            font-family: 'Times New Roman', Times, serif; 
-            font-size: 13pt; /* Giảm nhẹ cỡ chữ xuống 13pt để dòng dài hơn */
-            line-height: 1.5; 
-            color: #000;
-            margin: 15px 0;
-            overflow-x: hidden; /* Tránh thanh cuộn ngang */
-            text-align: justify; /* Căn đều 2 bên cho đẹp giống sách */
-        }
+        .post { background: white; padding: 30px 40px; margin-bottom: 30px; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .content { white-space: pre-wrap; font-family: 'Times New Roman', Times, serif; font-size: 13pt; line-height: 1.5; margin: 15px 0; text-align: justify; }
         
-        /* Các phần khác giữ nguyên cho đẹp */
-        h3 { color: #2c3e50; font-size: 16pt; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        
-        /* Vùng nhập liệu của học sinh */
         .student-input-area { background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #ddd; margin-top: 20px; }
+        .question-row { display: flex; align-items: flex-start; margin-bottom: 15px; border-bottom: 1px dashed #eee; padding-bottom: 10px; flex-wrap: wrap; }
+        .q-num { width: 40px; font-weight: bold; color: #009688; font-size: 1.1em; padding-top: 5px; }
         
-        /* Phiếu trả lời */
-        .answer-sheet { background: white; padding: 15px; border-radius: 8px; border: 2px solid #c5e1a5; margin-top: 15px; }
-        .sheet-title { font-weight: bold; margin-bottom: 10px; color: #33691e; text-align: center; text-transform: uppercase; }
-        .question-row { display: flex; align-items: center; margin-bottom: 8px; border-bottom: 1px dashed #eee; padding-bottom: 5px; }
-        .q-num { width: 30px; font-weight: bold; color: #555; }
+        /* Bong bóng trắc nghiệm */
+        .bubble-group { display: flex; gap: 10px; align-items: center; }
+        .option-btn { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #bbb; background: #fff; cursor: pointer; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #555; transition: 0.2s; }
+        .option-btn:hover { background: #f0f0f0; }
+        .option-btn.selected { background: #009688; color: white; border-color: #00796b; transform: scale(1.1); }
+
+        .input-fill { padding: 8px; border: 1px solid #ccc; border-radius: 4px; max-width: 300px; font-family: monospace; }
+        .input-essay { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; height: 60px; font-family: monospace; }
         
-        .option-btn {
-            width: 35px; height: 35px; border-radius: 50%; border: 1px solid #bbb;
-            background: #fff; margin-right: 15px; cursor: pointer;
-            display: flex; justify-content: center; align-items: center; font-weight: bold; color: #555;
-            transition: 0.2s; 
-        }
-        .option-btn:hover { background: #f0f0f0; border-color: #888; }
-        .option-btn.selected { background: #009688; color: white; border-color: #00796b; transform: scale(1.15); box-shadow: 0 2px 5px rgba(0,150,136,0.4); }
-
-        input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 1em;}
-        button.submit-btn { background: #2980b9; color: white; border: none; font-weight: bold; cursor: pointer; padding: 15px; width: 100%; font-size: 1.1em; border-radius: 4px; box-shadow: 0 4px 6px rgba(41, 128, 185, 0.3); transition: 0.3s;}
-        button.submit-btn:hover { background: #2471a3; transform: translateY(-2px); }
-        button.submit-btn:disabled { background: #bdc3c7; cursor: not-allowed; transform: none; box-shadow: none; }
-
-        .result-box { margin-top: 20px; padding: 20px; background: #fffde7; border: 2px solid #ffb74d; border-radius: 8px; display: none; text-align: center; }
-        .score { font-size: 1.8em; font-weight: bold; color: #e65100; margin-bottom: 10px; }
+        input[type="text"].main-name { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; }
+        button.submit-btn { background: #2980b9; color: white; border: none; font-weight: bold; cursor: pointer; padding: 15px; width: 100%; font-size: 1.1em; border-radius: 4px; margin-top: 20px; }
+        button.submit-btn:disabled { background: #bdc3c7; cursor: not-allowed; }
+        .result-box { margin-top: 20px; padding: 15px; background: #fffde7; border: 2px solid #ffb74d; border-radius: 8px; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header-section">
-        <h2 style="color:#2980b9; margin:0 0 15px 0;"><i class="fas fa-file-alt"></i> HỆ THỐNG THI TRỰC TUYẾN</h2>
-        <select id="class-select" onchange="loadAss()"><option value="">-- Đang tải danh sách lớp... --</option></select>
+        <h2 style="color:#009688; margin:0 0 10px 0;">HỆ THỐNG BÀI TẬP</h2>
+        <select id="class-select" onchange="loadAss()"><option value="">-- Đang tải... --</option></select>
     </div>
-    
-    <div id="ass-area">
-        <div style="text-align:center; color:#777; margin-top: 50px;">
-            <i class="fas fa-arrow-up"></i><br>Vui lòng chọn lớp để lấy đề thi.
-        </div>
-    </div>
+    <div id="ass-area"><p style="text-align:center; color:#777; margin-top:50px;">Vui lòng chọn lớp.</p></div>
 </div>
 
 <script type="module">
-    // ... (GIỮ NGUYÊN PHẦN SCRIPT JAVASCRIPT CŨ CỦA BẠN - KHÔNG CẦN SỬA CODE JS) ...
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
@@ -121,52 +72,66 @@
         const cid = document.getElementById('class-select').value;
         const area = document.getElementById('ass-area');
         if(!cid) return area.innerHTML = "";
-        
-        area.innerHTML = "<div style='text-align:center; padding: 50px;'><i class='fas fa-spinner fa-spin fa-2x'></i><br>Đang tải đề thi...</div>";
+        area.innerHTML = "<div style='text-align:center'><i class='fas fa-spinner fa-spin'></i> Đang tải...</div>";
         
         onValue(ref(db, `assignments/${cid}`), snap => {
             area.innerHTML = "";
             const d = snap.val();
-            if(!d) return area.innerHTML = "<div style='text-align:center; padding:50px'>Chưa có bài kiểm tra nào.</div>";
+            if(!d) return area.innerHTML = "<p style='text-align:center'>Chưa có bài tập.</p>";
 
             Object.keys(d).reverse().forEach(k => {
                 const q = d[k];
-                const keyTokens = q.correctAnswer ? q.correctAnswer.match(/[a-zA-Z0-9]+/g) : [];
-                const numQuestions = keyTokens ? keyTokens.length : 0;
-                const keyAttr = q.correctAnswer ? `data-key="${q.correctAnswer}"` : "";
+                
+                // --- ĐỌC KEY JSON ---
+                let keyMap = {};
+                try {
+                    // Cố gắng parse JSON, nếu lỗi (do bài cũ) thì bỏ qua
+                    keyMap = JSON.parse(q.correctAnswer);
+                } catch(e) { console.log("Bài cũ, không phải JSON"); }
 
-                let sheetHTML = `<div class="answer-sheet" id="sheet-${k}">`;
-                if(numQuestions > 0) {
-                    sheetHTML += `<div class="sheet-title">Phiếu Trả Lời (${numQuestions} Câu)</div>`;
-                    for(let i=1; i<=numQuestions; i++) {
-                        sheetHTML += `
-                            <div class="question-row" id="qrow-${k}-${i}">
-                                <div class="q-num">${i}.</div>
-                                <div class="option-btn" onclick="selectOpt('${k}', ${i}, 'A')">A</div>
-                                <div class="option-btn" onclick="selectOpt('${k}', ${i}, 'B')">B</div>
-                                <div class="option-btn" onclick="selectOpt('${k}', ${i}, 'C')">C</div>
-                                <div class="option-btn" onclick="selectOpt('${k}', ${i}, 'D')">D</div>
+                const hasKey = Object.keys(keyMap).length > 0;
+                // Mã hóa lại để lưu vào nút Nộp bài
+                const keyJson = hasKey ? encodeURIComponent(JSON.stringify(keyMap)) : "";
+
+                let inputsHTML = "";
+                if(hasKey) {
+                    Object.keys(keyMap).sort((a,b)=>a-b).forEach(num => {
+                        const info = keyMap[num];
+                        let inputControl = "";
+
+                        if(info.type === 'mcq') {
+                            inputControl = `
+                                <div class="bubble-group" id="q-${k}-${num}" data-type="mcq">
+                                    <div class="option-btn" onclick="selOpt('${k}', '${num}', 'A')">A</div>
+                                    <div class="option-btn" onclick="selOpt('${k}', '${num}', 'B')">B</div>
+                                    <div class="option-btn" onclick="selOpt('${k}', '${num}', 'C')">C</div>
+                                    <div class="option-btn" onclick="selOpt('${k}', '${num}', 'D')">D</div>
+                                </div>`;
+                        } else if(info.type === 'fill') {
+                            inputControl = `<input type="text" class="input-fill" id="in-${k}-${num}" placeholder="Điền đáp án..." autocomplete="off">`;
+                        } else {
+                            inputControl = `<textarea class="input-essay" id="in-${k}-${num}" placeholder="Viết câu trả lời..."></textarea>`;
+                        }
+
+                        inputsHTML += `
+                            <div class="question-row">
+                                <div class="q-num">${num}.</div>
+                                <div style="flex:1">${inputControl}</div>
                             </div>
                         `;
-                    }
+                    });
                 } else {
-                    sheetHTML += "<p style='color:red'>Chưa có phiếu trả lời.</p>";
+                    inputsHTML = "<p style='color:red'>Bài này chưa có cấu hình trả lời trực tuyến.</p>";
                 }
-                sheetHTML += `</div>`;
 
                 area.innerHTML += `
                     <div class="post" id="post-${k}">
                         <h3>${q.title}</h3>
-                        
                         <div class="content">${q.content}</div>
-                        
                         <div class="student-input-area">
-                            <label><b>Họ và tên học sinh:</b></label>
-                            <input type="text" id="name-${k}" placeholder="Nhập tên của em...">
-                            
-                            ${sheetHTML}
-                            
-                            <button class="submit-btn" onclick="submit('${cid}', '${k}')" ${keyAttr}>NỘP BÀI THI</button>
+                            <input type="text" class="main-name" id="name-${k}" placeholder="Họ và Tên của em (Bắt buộc)">
+                            ${inputsHTML}
+                            <button class="submit-btn" onclick="submit('${cid}', '${k}')" data-key="${keyJson}">NỘP BÀI LÀM</button>
                             <div id="res-${k}" class="result-box"></div>
                         </div>
                     </div>`;
@@ -174,74 +139,76 @@
         });
     }
 
-    window.selectOpt = function(assId, qNum, opt) {
-        const row = document.getElementById(`qrow-${assId}-${qNum}`);
-        const btns = row.getElementsByClassName('option-btn');
+    window.selOpt = (aid, qNum, val) => {
+        const group = document.getElementById(`q-${aid}-${qNum}`);
+        const btns = group.getElementsByClassName('option-btn');
         for(let btn of btns) btn.classList.remove('selected');
-        for(let btn of btns) if(btn.innerText === opt) {
-            btn.classList.add('selected');
-            row.setAttribute('data-selected', opt);
-        }
+        for(let btn of btns) if(btn.innerText === val) btn.classList.add('selected');
+        group.setAttribute('data-val', val);
     }
 
     window.submit = (cid, aid) => {
         const name = document.getElementById(`name-${aid}`).value;
+        if(!name) return alert("Vui lòng nhập tên!");
+
         const btn = document.querySelector(`#post-${aid} .submit-btn`);
-        const correctKey = btn.getAttribute('data-key'); 
+        const keyJson = btn.getAttribute('data-key');
+        if(!keyJson) return alert("Lỗi dữ liệu bài tập.");
+        
+        const keyMap = JSON.parse(decodeURIComponent(keyJson));
 
-        if(!name) return alert("Em vui lòng nhập tên trước khi nộp bài!");
+        let answersToSave = "";
+        let correctCount = 0;
+        let totalCount = 0;
+        let detailsHTML = "<b>Chi tiết:</b><br>";
 
-        const sheet = document.getElementById(`sheet-${aid}`);
-        const rows = sheet.getElementsByClassName('question-row');
-        let studentAnsString = "";
-        let ansArray = [];
+        Object.keys(keyMap).sort((a,b)=>a-b).forEach(num => {
+            const info = keyMap[num];
+            let studentAns = "";
 
-        for(let i=0; i<rows.length; i++) {
-            const qNum = i + 1;
-            const selected = rows[i].getAttribute('data-selected');
-            if(selected) {
-                ansArray.push(selected);
-                studentAnsString += `${qNum}${selected} `;
+            if(info.type === 'mcq') {
+                const group = document.getElementById(`q-${aid}-${num}`);
+                studentAns = group.getAttribute('data-val') || "?";
             } else {
-                studentAnsString += `${qNum}? `;
-                ansArray.push("?"); 
+                const input = document.getElementById(`in-${aid}-${num}`);
+                studentAns = input.value.trim() || "(trống)";
             }
-        }
 
-        let scoreText = "0";
-        let percent = 0;
-        let msg = "";
-
-        if(correctKey) {
-            const cleanKey = correctKey.match(/[a-dA-D]/g) || [];
-            let matchCount = 0;
-            for(let i=0; i<cleanKey.length; i++) {
-                if(ansArray[i] && ansArray[i].toUpperCase() === cleanKey[i].toUpperCase()) {
-                    matchCount++;
-                }
+            let isCorrect = false;
+            // So sánh đáp án
+            if(studentAns.toLowerCase() === info.ans.toLowerCase()) {
+                isCorrect = true;
+                if(info.type !== 'essay') correctCount++;
             }
-            const total = cleanKey.length;
-            percent = total > 0 ? Math.round((matchCount / total) * 100) : 0;
-            scoreText = `${matchCount}/${total}`;
-            msg = `<div class="score">Điểm số: ${scoreText} (${percent}%)</div>
-                   <div style="text-align:center; margin-top:10px;">Đáp án đúng: <b>${correctKey}</b></div>`;
-        }
+
+            if(info.type !== 'essay') totalCount++;
+            answersToSave += `${num}:${studentAns} | `;
+
+            const color = isCorrect ? 'green' : 'red';
+            const icon = isCorrect ? '✔' : '✖';
+            
+            if(info.type === 'essay') {
+                detailsHTML += `<div style="margin-top:5px; border-bottom:1px solid #eee;">Câu ${num}: <i>${studentAns}</i><br><small style="color:blue">Gợi ý: ${info.ans}</small></div>`;
+            } else {
+                detailsHTML += `<div style="margin-top:5px; color:${color}">Câu ${num}: ${studentAns} ${icon} (Đáp án: <b>${info.ans}</b>)</div>`;
+            }
+        });
+
+        const scoreText = `${correctCount}/${totalCount}`;
+        const percent = totalCount > 0 ? Math.round((correctCount/totalCount)*100) : 0;
 
         push(ref(db, `answers/${cid}/${aid}`), {
-            name: name,
-            answer: studentAnsString.trim(),
-            score: scoreText,
-            percent: percent,
-            timestamp: Date.now()
+            name: name, answer: answersToSave, score: scoreText, percent: percent, timestamp: Date.now()
         });
 
         const resBox = document.getElementById(`res-${aid}`);
         resBox.style.display = "block";
-        resBox.innerHTML = `✅ <b>${name}</b> đã nộp bài thành công!<br>${msg}`;
-        
+        resBox.innerHTML = `
+            <h3 style="color:${percent >= 50 ? 'green':'orange'}">Kết quả: ${scoreText} (${percent}%)</h3>
+            <div style="background:white; padding:10px; max-height:300px; overflow-y:auto; border:1px solid #ccc;">${detailsHTML}</div>
+        `;
         btn.disabled = true;
-        btn.innerHTML = "<i class='fas fa-check-circle'></i> ĐÃ NỘP BÀI XONG";
-        btn.style.background = "#7f8c8d";
+        btn.innerText = "ĐÃ NỘP BÀI";
     }
 </script>
 </body>
