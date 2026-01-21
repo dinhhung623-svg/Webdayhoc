@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giáo Viên - Soạn Thảo Cao Cấp</title>
+    <title>Giáo Viên - Quản Lý Điểm Số</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 
@@ -20,28 +20,31 @@
         input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         .btn-primary { background: #2980b9; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
         
-        /* CSS CHO BỘ SOẠN THẢO MỚI */
-        #editor-container { height: 300px; background: white; font-family: 'Times New Roman', serif; font-size: 14pt; }
-        .ql-toolbar { background: #f8f9fa; border-radius: 4px 4px 0 0; }
-        .ql-container { border-radius: 0 0 4px 4px; font-size: 1.1em; }
-
-        /* Key Builder CSS */
-        .key-builder-area { border: 2px dashed #bdc3c7; padding: 15px; border-radius: 5px; background: #fdfefe; margin-top: 10px; max-height: 500px; overflow-y: auto; }
-        .key-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; background: white; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        /* QUILL EDITOR */
+        #editor-container { height: 250px; background: white; font-family: 'Times New Roman', serif; font-size: 14pt; }
+        
+        /* KEY BUILDER */
+        .key-builder-area { border: 2px dashed #bdc3c7; padding: 15px; border-radius: 5px; background: #fdfefe; margin-top: 10px; max-height: 400px; overflow-y: auto; }
+        .key-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; background: white; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px; }
         .key-num { width: 40px; font-weight: bold; text-align: center; color: #2980b9; background: #eaf2f8; padding: 8px 0; border-radius: 4px; }
         .btn-del-row { background: #ffcdd2; color: #c62828; border: none; padding: 0 15px; height: 40px; cursor: pointer; border-radius: 4px; }
         .btn-add-row { background: #27ae60; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-weight: bold; margin-right: 5px; }
-        .toolbar { margin-bottom: 15px; display: flex; gap: 10px; align-items: center; background: #eee; padding: 10px; border-radius: 5px; }
-
-        /* Hiển thị bài viết */
-        .assignment-card { background: white; padding: 40px; margin-bottom: 30px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 1000px; margin: 0 auto 30px auto; position: relative; }
         
-        /* QUAN TRỌNG: Class này để hiển thị HTML đẹp */
-        .content-view { 
-            font-family: 'Times New Roman', serif; font-size: 14pt; line-height: 1.6; color: #000; margin: 15px 0; 
-            /* Reset lại CSS để không bị ảnh hưởng bởi web, giữ nguyên định dạng gốc */
-        }
-        .content-view p { margin-bottom: 10px; }
+        /* CARD HIỂN THỊ BÀI TẬP */
+        .assignment-card { background: white; padding: 40px; margin-bottom: 30px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 1000px; margin: 0 auto 30px auto; position: relative; }
+        .content-view { font-family: 'Times New Roman', serif; font-size: 14pt; line-height: 1.6; color: #000; border:none; padding:0; }
+        
+        /* BẢNG ĐIỂM CHI TIẾT */
+        .submission-area { margin-top: 20px; border-top: 2px solid #eee; padding-top: 20px; display: none; background: #fafafa; padding: 15px; border-radius: 5px; }
+        .student-row { display: flex; justify-content: space-between; align-items: center; background: white; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; }
+        .student-row:hover { background: #e3f2fd; }
+        
+        .score-badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.9em; color: white; }
+        .high { background: #27ae60; } .med { background: #f39c12; } .low { background: #c0392b; }
+
+        .detail-view { display: none; padding: 10px; background: #fffde7; border-left: 3px solid #fbc02d; margin-bottom: 10px; font-family: monospace; font-size: 0.95em; }
+        
+        .toggle-btn { background: #34495e; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 0.9em; margin-top: 10px; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -62,27 +65,23 @@
         <h2 id="class-name" style="color:#2c3e50;"></h2>
         
         <div class="editor-box">
-            <h3 style="margin-top:0; color:#2980b9;">📝 Soạn Bài (Hỗ trợ Copy từ Word)</h3>
+            <h3 style="margin-top:0; color:#2980b9;">📝 Soạn Bài Tập Mới</h3>
             <input type="text" id="a-title" placeholder="Tiêu đề bài tập">
-            
-            <label><b>1. Nội dung đề bài:</b> (Copy từ Word dán vào đây)</label>
-            
-            <div id="editor-container"></div>
-            
-            <label style="margin-top: 20px; display:block; color:#c0392b;"><b>2. Cấu hình đáp án:</b></label>
-            <div class="toolbar">
-                <button class="btn-add-row" onclick="addKeyRow()"><i class="fas fa-plus-circle"></i> Thêm 1 câu</button>
-                <button class="btn-add-row" style="background:#3498db" onclick="addBulk(5)">+ 5 câu</button>
-                <button class="btn-add-row" style="background:#95a5a6" onclick="resetKey()"><i class="fas fa-sync-alt"></i> Làm lại</button>
+            <div id="editor-container"></div> <div style="margin-top: 20px;">
+                <label><b>Cấu hình đáp án:</b></label><br>
+                <div style="margin-top:5px; margin-bottom:10px;">
+                    <button class="btn-add-row" onclick="addKeyRow()"><i class="fas fa-plus"></i> Thêm câu</button>
+                    <button class="btn-add-row" style="background:#3498db" onclick="addBulk(5)">+ 5 câu</button>
+                    <button class="btn-add-row" style="background:#95a5a6" onclick="resetKey()">Reset</button>
+                </div>
+                <div id="key-container" class="key-builder-area">
+                    <div style="text-align:center; color:#999; padding:40px;">Chưa có câu hỏi.</div>
+                </div>
             </div>
-            <div id="key-container" class="key-builder-area">
-                <div style="text-align:center; color:#999; padding:40px;">Chưa có câu hỏi.</div>
-            </div>
-
-            <button class="btn-primary" onclick="addAssignment()">ĐĂNG BÀI TẬP</button>
+            <button class="btn-primary" onclick="addAssignment()">ĐĂNG BÀI</button>
         </div>
 
-        <h3>📚 Danh sách bài đã đăng:</h3>
+        <h3>📚 Danh sách bài tập & Kết quả:</h3>
         <div id="list">Loading...</div>
     </div>
 </div>
@@ -92,21 +91,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-    // --- KHỞI TẠO QUILL EDITOR ---
-    var quill = new Quill('#editor-container', {
-        theme: 'snow',
-        placeholder: 'Dán nội dung từ Word vào đây...',
-        modules: {
-            toolbar: [
-                ['bold', 'italic', 'underline'], // Các nút định dạng cơ bản
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                [{ 'color': [] }, { 'background': [] }], // Màu chữ, màu nền
-                ['clean'] // Nút xóa định dạng
-            ]
-        }
-    });
-
-    // --- FIREBASE CONFIG ---
+    // --- CONFIG FIREBASE ---
     const firebaseConfig = {
       apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE",
       authDomain: "lophoconl.firebaseapp.com",
@@ -122,47 +107,52 @@
     let curClass = null;
     let questionCount = 0;
 
-    // --- LOGIC KEY BUILDER (GIỮ NGUYÊN) ---
+    // --- QUILL EDITOR ---
+    var quill = new Quill('#editor-container', {
+        theme: 'snow',
+        placeholder: 'Copy nội dung từ Word dán vào đây...',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'color': [] }, { 'background': [] }],
+                ['clean']
+            ]
+        }
+    });
+
+    // --- KEY BUILDER ---
     window.addKeyRow = () => {
-        const container = document.getElementById('key-container');
-        if(container.innerText.includes('Chưa có câu hỏi')) container.innerHTML = "";
+        const c = document.getElementById('key-container');
+        if(c.innerText.includes('Chưa có câu hỏi')) c.innerHTML = "";
         questionCount++;
-        const rowId = `row-${questionCount}`;
-        
-        container.insertAdjacentHTML('beforeend', `
-            <div class="key-row" id="${rowId}">
+        const id = `row-${questionCount}`;
+        c.insertAdjacentHTML('beforeend', `
+            <div class="key-row" id="${id}">
                 <div class="key-num">#${questionCount}</div>
-                <select class="key-type" onchange="changeInputType('${rowId}')" style="width:150px">
+                <select class="key-type" onchange="changeType('${id}')" style="width:150px">
                     <option value="mcq">Trắc nghiệm</option>
                     <option value="fill">Điền từ</option>
                     <option value="essay">Tự luận</option>
                 </select>
-                <div class="key-val" id="val-${rowId}" style="flex:1">
-                    <select class="ans-input" style="width:100%; padding:8px;">
-                        <option value="A">Đáp án A</option>
-                        <option value="B">Đáp án B</option>
-                        <option value="C">Đáp án C</option>
-                        <option value="D">Đáp án D</option>
-                    </select>
+                <div class="key-val" id="val-${id}" style="flex:1">
+                    <select class="ans-input" style="width:100%"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
                 </div>
-                <button class="btn-del-row" onclick="removeRow('${rowId}')"><i class="fas fa-trash"></i></button>
-            </div>
-        `);
-        container.scrollTop = container.scrollHeight;
+                <button class="btn-del-row" onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i></button>
+            </div>`);
+        c.scrollTop = c.scrollHeight;
     }
     window.addBulk = (n) => { for(let i=0; i<n; i++) addKeyRow(); }
-    window.removeRow = (id) => document.getElementById(id).remove();
     window.resetKey = () => { document.getElementById('key-container').innerHTML = "<div style='text-align:center;color:#999;padding:40px;'>Chưa có câu hỏi.</div>"; questionCount = 0; }
-    
-    window.changeInputType = (rowId) => {
-        const type = document.querySelector(`#${rowId} .key-type`).value;
-        const div = document.getElementById(`val-${rowId}`);
-        if(type==='mcq') div.innerHTML = `<select class="ans-input" style="width:100%;padding:8px"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>`;
-        else if(type==='fill') div.innerHTML = `<input type="text" class="ans-input" placeholder="Đáp án đúng..." style="padding:8px">`;
-        else div.innerHTML = `<input type="text" class="ans-input" placeholder="Gợi ý trả lời..." style="padding:8px">`;
+    window.changeType = (id) => {
+        const type = document.querySelector(`#${id} .key-type`).value;
+        const div = document.getElementById(`val-${id}`);
+        if(type==='mcq') div.innerHTML = `<select class="ans-input" style="width:100%"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>`;
+        else if(type==='fill') div.innerHTML = `<input type="text" class="ans-input" placeholder="Đáp án đúng...">`;
+        else div.innerHTML = `<input type="text" class="ans-input" placeholder="Gợi ý chấm...">`;
     }
 
-    // --- LOGIC CHÍNH ---
+    // --- LOGIC LỚP & BÀI TẬP ---
     window.addClass = () => { const n = prompt("Tên lớp:"); if(n) push(ref(db, 'classes'), {name: n}); }
     
     onValue(ref(db, 'classes'), snap => {
@@ -181,14 +171,10 @@
     }
     window.delClass = (e, k) => { e.stopPropagation(); if(confirm("Xóa lớp?")) remove(ref(db, `classes/${k}`)); }
 
-    // ĐĂNG BÀI (CẬP NHẬT ĐỂ LẤY HTML TỪ QUILL)
     window.addAssignment = () => {
         if(!curClass) return alert("Chọn lớp trước!");
         const title = document.getElementById('a-title').value;
-        
-        // LẤY NỘI DUNG HTML TỪ QUILL (Thay vì lấy value từ textarea)
-        const content = quill.root.innerHTML; 
-        
+        const content = quill.root.innerHTML;
         const rows = document.querySelectorAll('.key-row');
         const keyMap = {};
         let idx = 1;
@@ -198,27 +184,20 @@
             if(a) { keyMap[idx] = {type: t, ans: a}; idx++; }
         });
 
-        // Kiểm tra xem nội dung có trống không (Quill trống vẫn có thẻ <p><br></p>)
-        const isContentEmpty = quill.getText().trim().length === 0;
-
-        if(title && !isContentEmpty && Object.keys(keyMap).length > 0) {
+        if(title && Object.keys(keyMap).length > 0) {
             push(ref(db, `assignments/${curClass}`), {
-                title: title,
-                content: content, // Lưu HTML
-                correctAnswer: JSON.stringify(keyMap),
-                timestamp: Date.now()
+                title: title, content: content, correctAnswer: JSON.stringify(keyMap), timestamp: Date.now()
             });
             alert("Đã đăng bài!");
-            document.getElementById('a-title').value = "";
-            quill.setContents([]); // Xóa trắng editor
+            document.getElementById('a-title').value="";
+            quill.setContents([]);
             resetKey();
-        } else {
-            alert("Thiếu tiêu đề, nội dung hoặc câu hỏi!");
-        }
+        } else alert("Thiếu thông tin!");
     }
 
     window.delAss = (id) => { if(confirm("Xóa bài này?")) remove(ref(db, `assignments/${curClass}/${id}`)); }
 
+    // --- HIỂN THỊ DANH SÁCH BÀI & KẾT QUẢ ---
     function loadAss(cid) {
         onValue(ref(db, `assignments/${cid}`), snap => {
             const list = document.getElementById('list');
@@ -226,17 +205,92 @@
             const d = snap.val();
             if(!d) return list.innerHTML = "<p>Chưa có bài.</p>";
             
-            Object.keys(d).reverse().forEach(k => {
-                const i = d[k];
+            Object.keys(d).reverse().forEach(aid => {
+                const i = d[aid];
+                let keyMap = {};
+                try { keyMap = JSON.parse(i.correctAnswer); } catch(e){}
+
                 list.innerHTML += `
                     <div class="assignment-card">
-                        <button onclick="delAss('${k}')" style="float:right; color:red; border:none; background:none; cursor:pointer;">Xóa</button>
-                        <h3>${i.title}</h3>
-                        <div class="content-view ql-editor" style="padding:0;">${i.content}</div>
-                        <div style="font-size:0.9em; color:#27ae60; margin-top:10px;"><i class="fas fa-check-circle"></i> Đã cấu hình đáp án</div>
+                        <button onclick="delAss('${aid}')" style="float:right; color:red; border:none; background:none; cursor:pointer;">Xóa</button>
+                        <h3 style="border-bottom:1px solid #eee; padding-bottom:10px;">${i.title}</h3>
+                        <div class="content-view ql-editor">${i.content}</div>
+                        
+                        <button class="toggle-btn" onclick="toggleSubs('${aid}')"><i class="fas fa-list"></i> Xem Bài Nộp Của HS</button>
+                        
+                        <div id="subs-${aid}" class="submission-area">
+                            <div style="text-align:center"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>
+                        </div>
                     </div>`;
+                
+                // Load Submissions
+                loadSubs(cid, aid, keyMap);
             });
         });
+    }
+
+    function loadSubs(cid, aid, keyMap) {
+        onValue(ref(db, `answers/${cid}/${aid}`), snap => {
+            const div = document.getElementById(`subs-${aid}`);
+            if(!div) return;
+            div.innerHTML = "";
+            const d = snap.val();
+            if(!d) {
+                div.innerHTML = "<p style='color:#777; font-style:italic'>Chưa có học sinh nào nộp bài.</p>";
+                return;
+            }
+
+            Object.keys(d).reverse().forEach(subId => {
+                const s = d[subId];
+                // Tính màu điểm
+                let badge = "low";
+                if(s.percent >= 80) badge = "high";
+                else if(s.percent >= 50) badge = "med";
+                
+                // Tạo bảng chi tiết
+                let detailRows = "";
+                // Parse chuỗi kết quả: "1. A | 2. B |"
+                const rawArr = s.answer.split('|').map(x=>x.trim()).filter(x=>x);
+                rawArr.forEach(item => {
+                    // item dạng: "1. A"
+                    // Cần tách số câu và đáp án
+                    const match = item.match(/^(\d+)\.\s*(.*)$/);
+                    if(match) {
+                        const num = match[1];
+                        const ans = match[2];
+                        const keyInfo = keyMap[num] || {ans: '?', type: '?'};
+                        
+                        const isCorrect = (ans.toLowerCase() === keyInfo.ans.toLowerCase());
+                        const color = isCorrect ? 'green' : 'red';
+                        const icon = isCorrect ? '✔' : '✖';
+                        
+                        if(keyInfo.type === 'essay') {
+                             detailRows += `<div><b>Câu ${num}:</b> ${ans} <br><small style="color:blue">Gợi ý: ${keyInfo.ans}</small></div>`;
+                        } else {
+                             detailRows += `<div style="color:${color}"><b>Câu ${num}:</b> ${ans} ${icon} (Gốc: ${keyInfo.ans})</div>`;
+                        }
+                    }
+                });
+
+                const html = `
+                    <div class="student-row" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display==='block'?'none':'block'">
+                        <span style="font-weight:bold"><i class="fas fa-user-graduate"></i> ${s.name}</span>
+                        <span class="score-badge ${badge}">${s.score} (${s.percent}%)</span>
+                    </div>
+                    <div class="detail-view">
+                        ${detailRows || "Không đọc được chi tiết bài làm."}
+                        <div style="margin-top:5px; font-size:0.8em; color:#999; text-align:right">Nộp lúc: ${new Date(s.timestamp).toLocaleString()}</div>
+                    </div>
+                `;
+                div.innerHTML += html;
+            });
+        });
+    }
+    
+    // Global functions
+    window.toggleSubs = (id) => {
+        const el = document.getElementById(`subs-${id}`);
+        el.style.display = el.style.display==='block'?'none':'block';
     }
 </script>
 </body>
