@@ -3,123 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Làm Bài Thi Trực Tuyến</title>
+    <title>Thi Trực Tuyến - Responsive</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --primary: #3f51b5; /* Màu chủ đạo */
-            --accent: #ff4081;  /* Màu điểm nhấn (Timer) */
-            --bg: #f2f5f9;
-            --card-bg: #ffffff;
+            --primary: #007bff; /* Màu xanh chuẩn đề thi */
+            --bg: #f4f7f6;
             --text: #333;
+            --border: #dee2e6;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; padding-bottom: 80px; color: var(--text); }
-        .container { max-width: 850px; margin: 0 auto; padding: 15px; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); margin: 0; padding-bottom: 80px; color: var(--text); }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
 
-        /* HEADER & TIMER */
+        /* HEADER DÍNH */
         .sticky-header {
             position: fixed; top: 0; left: 0; width: 100%;
             background: white; padding: 10px 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             display: flex; justify-content: space-between; align-items: center;
-            z-index: 1000; box-sizing: border-box;
+            z-index: 1000; box-sizing: border-box; border-bottom: 1px solid var(--border);
         }
-        .exam-info h2 { margin: 0; font-size: 1.1em; color: var(--primary); }
         .timer-badge { 
-            background: #fce4ec; color: var(--accent); font-weight: bold; 
-            padding: 6px 15px; border-radius: 20px; border: 1px solid #f8bbd0;
-            display: flex; align-items: center; gap: 5px;
+            background: #fff0f0; color: #dc3545; font-weight: bold; 
+            padding: 6px 15px; border-radius: 20px; border: 1px solid #fadbd8;
+            font-family: monospace; font-size: 1.1em;
         }
 
-        /* KHUNG ĐỀ BÀI */
-        .content-card {
-            background: var(--card-bg); border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        /* KHUNG ĐỀ BÀI (VĂN BẢN GỐC) */
+        .paper-card {
+            background: white; border-radius: 8px;
+            border: 1px solid var(--border);
             padding: 30px; margin-top: 70px; margin-bottom: 20px;
-            font-family: 'Times New Roman', serif; font-size: 1.3em; line-height: 1.6;
+            font-family: 'Times New Roman', serif; font-size: 1.25em; line-height: 1.6;
         }
-        .content-card img { max-width: 100%; display: block; margin: 10px auto; }
+        .paper-card img { max-width: 100%; display: block; margin: 10px auto; }
 
-        /* --- DẢI CHỌN ĐÁP ÁN (PHONG CÁCH MỚI) --- */
-        .answer-strip-container {
-            display: flex; flex-direction: column; gap: 10px;
+        /* --- PHẦN CÂU HỎI & ĐÁP ÁN (QUAN TRỌNG) --- */
+        .question-block {
+            background: white; border-radius: 8px; border: 1px solid var(--border);
+            padding: 20px; margin-bottom: 15px;
+            border-left: 4px solid transparent;
+        }
+        .question-block.answered { border-left-color: var(--primary); background: #f8fbff; }
+
+        .q-title { font-weight: 600; font-size: 1.1em; margin-bottom: 15px; color: #2c3e50; }
+
+        /* GRID SYSTEM CHO ĐÁP ÁN */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* MÁY TÍNH: 4 CỘT */
+            gap: 15px;
         }
 
-        .question-strip {
-            background: white;
-            border-radius: 8px;
-            padding: 15px 20px;
-            display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-            border-left: 5px solid transparent;
-            transition: 0.2s;
+        /* RESPONSIVE: ĐIỆN THOẠI -> 2 CỘT */
+        @media (max-width: 768px) {
+            .options-grid {
+                grid-template-columns: repeat(2, 1fr); /* MOBILE: 2 CỘT */
+            }
         }
 
-        .question-strip:hover { transform: translateX(5px); }
-        .question-strip.active { border-left-color: var(--primary); background: #e8eaf6; }
+        /* NÚT LỰA CHỌN (BOX STYLE) */
+        .opt-box {
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 10px;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 10px;
+            transition: 0.2s; background: white;
+        }
+        
+        .opt-box:hover { background: #f1f1f1; border-color: #999; }
 
-        .q-number { 
-            font-weight: bold; font-size: 1.1em; color: #555; width: 80px; 
+        /* Vòng tròn giả lập Radio */
+        .fake-radio {
+            width: 18px; height: 18px;
+            border: 2px solid #666; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
-
-        /* HÀNG NÚT A B C D */
-        .options-row {
-            display: flex; gap: 15px; flex: 1; justify-content: flex-end;
+        .fake-radio::after {
+            content: ''; width: 10px; height: 10px;
+            background: var(--primary); border-radius: 50%;
+            display: none; /* Mặc định ẩn */
         }
 
-        .opt-btn {
-            width: 50px; height: 40px;
-            border: 2px solid #ccc; border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; cursor: pointer; transition: 0.2s;
-            background: white; color: #777;
+        /* KHI ĐƯỢC CHỌN */
+        .opt-box.selected {
+            border-color: var(--primary);
+            background-color: #e7f1ff;
+            color: var(--primary);
+            font-weight: 600;
         }
+        .opt-box.selected .fake-radio { border-color: var(--primary); }
+        .opt-box.selected .fake-radio::after { display: block; /* Hiện chấm tròn */ }
 
-        .opt-btn:hover { border-color: var(--primary); color: var(--primary); background: #f5f5f5; }
-
-        /* KHI CHỌN */
-        .opt-btn.selected {
-            background: var(--primary); color: white; border-color: var(--primary);
-            box-shadow: 0 4px 10px rgba(63, 81, 181, 0.3); transform: scale(1.1);
-        }
-
-        /* Input điền từ */
-        .input-fill {
-            flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; outline: none;
-        }
-        .input-fill:focus { border-color: var(--primary); }
-
-        /* RESPONSIVE MOBILE */
-        @media (max-width: 600px) {
-            .question-strip { flex-direction: column; align-items: flex-start; gap: 10px; }
-            .options-row { width: 100%; justify-content: space-between; }
-            .opt-btn { flex: 1; }
-        }
-
-        /* DASHBOARD */
-        #dashboard { padding-top: 50px; text-align: center; }
-        .dash-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
-        select, input[type="text"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        .btn-main { background: var(--primary); color: white; padding: 12px 30px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; }
-        .test-item { text-align: left; padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
-        .test-item:hover { background: #f9f9f9; color: var(--primary); }
+        /* INPUT ĐIỀN TỪ */
+        .input-fill { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .input-fill:focus { border-color: var(--primary); outline: none; }
 
         /* FOOTER */
         .footer-bar {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background: white; padding: 15px; text-align: center;
-            border-top: 1px solid #eee; z-index: 999;
+            border-top: 1px solid var(--border); z-index: 999;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
         }
-        .btn-submit { background: #d32f2f; color: white; padding: 10px 40px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-submit { 
+            background: #007bff; color: white; padding: 12px 50px; 
+            border-radius: 30px; border: none; font-weight: bold; cursor: pointer; font-size: 1.1em;
+            transition: 0.3s;
+        }
+        .btn-submit:hover { background: #0056b3; transform: translateY(-2px); }
+
+        /* DASHBOARD */
+        #dashboard { padding-top: 50px; text-align: center; }
+        .dash-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 500px; margin: 0 auto; }
+        select, input[type="text"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .btn-main { background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; }
+        .test-item { text-align: left; padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .test-item:hover { background: #f9f9f9; color: var(--primary); }
 
         /* MODAL */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
-        .modal-box { background: white; padding: 30px; border-radius: 12px; text-align: center; width: 350px; }
+        .modal-box { background: white; padding: 30px; border-radius: 12px; text-align: center; width: 350px; animation: popUp 0.3s; }
+        @keyframes popUp { from {transform: scale(0.8);} to {transform: scale(1);} }
         .score-big { font-size: 3em; color: var(--primary); font-weight: bold; margin: 10px 0; }
         
         .hidden { display: none !important; }
@@ -129,53 +140,48 @@
 
 <div id="dashboard" class="container">
     <div class="dash-card">
-        <h2 style="color:var(--primary); margin-top:0"><i class="fas fa-laptop-code"></i> THI TRỰC TUYẾN</h2>
+        <h2 style="color:var(--primary); margin-top:0"><i class="fas fa-edit"></i> HỆ THỐNG THI</h2>
         <select id="class-select" onchange="loadTests()">
-            <option value="">-- Chọn lớp học --</option>
+            <option value="">-- Chọn lớp --</option>
         </select>
-        <div id="test-list" style="margin-top:10px; max-height:250px; overflow-y:auto; border:1px solid #eee; border-radius:6px;">
-            <div style="padding:20px; color:#999">Vui lòng chọn lớp.</div>
+        <div id="test-list" style="margin-top:10px; max-height:250px; overflow-y:auto; border:1px solid #eee; border-radius:6px; text-align:left;">
+            <div style="padding:20px; color:#999; text-align:center">Vui lòng chọn lớp.</div>
         </div>
-        
         <div id="student-info" class="hidden" style="margin-top:20px;">
-            <input type="text" id="student-name" placeholder="Nhập Họ và Tên của em...">
-            <button class="btn-main" onclick="enterExam()">BẮT ĐẦU LÀM BÀI</button>
+            <input type="text" id="student-name" placeholder="Họ tên học sinh...">
+            <button class="btn-main" onclick="enterExam()">VÀO THI</button>
         </div>
     </div>
 </div>
 
 <div id="exam-app" class="hidden">
     <div class="sticky-header">
-        <div class="exam-info">
-            <h2 id="exam-title">Bài Thi</h2>
-            <small id="student-display" style="color:#666"></small>
-        </div>
+        <div style="font-weight:bold; color:#555" id="header-title">Bài thi</div>
         <div class="timer-badge"><i class="far fa-clock"></i> <span id="timer">45:00</span></div>
     </div>
 
     <div class="container">
-        <div class="content-card">
+        <div class="paper-card">
             <div style="border-bottom: 2px solid #eee; padding-bottom:10px; margin-bottom:15px; font-weight:bold; color:var(--primary)">
-                <i class="fas fa-file-alt"></i> NỘI DUNG ĐỀ THI
+                NỘI DUNG ĐỀ THI
             </div>
             <div id="paper-content" class="ql-editor"></div>
         </div>
 
-        <h3 style="margin: 0 0 15px 0; color:#555;">CHỌN ĐÁP ÁN:</h3>
-        <div id="answer-container" class="answer-strip-container">
+        <div id="questions-area">
             </div>
     </div>
 
     <div class="footer-bar">
-        <button class="btn-submit" onclick="submitExam()">NỘP BÀI THI</button>
+        <button class="btn-submit" onclick="submitExam()">NỘP BÀI</button>
     </div>
 </div>
 
 <div id="result-modal" class="modal">
     <div class="modal-box">
-        <h2>KẾT QUẢ</h2>
-        <div class="score-big" id="final-score">10</div>
-        <p id="final-msg">Bạn làm rất tốt!</p>
+        <h2 style="color:#28a745">Hoàn Thành!</h2>
+        <div class="score-big" id="final-score">0.0</div>
+        <p id="final-msg">Chi tiết kết quả</p>
         <button class="btn-main" onclick="location.reload()" style="background:#333">Thoát</button>
     </div>
 </div>
@@ -202,10 +208,9 @@
     let selectedCid = null;
     let selectedAid = null;
 
-    // --- DASHBOARD ---
     onValue(ref(db, 'classes'), snap => {
         const sel = document.getElementById('class-select');
-        sel.innerHTML = '<option value="">-- Chọn lớp học --</option>';
+        sel.innerHTML = '<option value="">-- Chọn lớp --</option>';
         const d = snap.val();
         if(d) Object.keys(d).forEach(k => sel.innerHTML += `<option value="${k}">${d[k].name}</option>`);
     });
@@ -217,11 +222,11 @@
         if(!cid) return list.innerHTML = "";
         selectedCid = cid;
 
-        list.innerHTML = "<div style='padding:20px'>Đang tải...</div>";
+        list.innerHTML = "<div style='padding:20px; text-align:center'>Đang tải...</div>";
         onValue(ref(db, `assignments/${cid}`), snap => {
             list.innerHTML = "";
             const d = snap.val();
-            if(!d) return list.innerHTML = "<div style='padding:20px'>Chưa có bài thi.</div>";
+            if(!d) return list.innerHTML = "<div style='padding:20px; text-align:center'>Không có bài thi.</div>";
 
             Object.keys(d).reverse().forEach(aid => {
                 const item = d[aid];
@@ -230,7 +235,7 @@
                 div.innerHTML = `<b>${item.title}</b>`;
                 div.onclick = () => {
                     document.querySelectorAll('.test-item').forEach(e => e.style.background = 'white');
-                    div.style.background = '#e8eaf6';
+                    div.style.background = '#e7f1ff';
                     currentData = item;
                     selectedAid = aid;
                     document.getElementById('student-info').classList.remove('hidden');
@@ -240,26 +245,24 @@
         });
     }
 
-    // --- VÀO THI ---
     window.enterExam = () => {
         const name = document.getElementById('student-name').value.trim();
         if(!name) return alert("Vui lòng nhập tên!");
-        document.getElementById('student-display').innerText = name;
         
         try { currentKeyMap = JSON.parse(currentData.correctAnswer); } catch(e) { currentKeyMap = {}; }
         
         document.getElementById('dashboard').classList.add('hidden');
         document.getElementById('exam-app').classList.remove('hidden');
-        document.getElementById('exam-title').innerText = currentData.title;
+        document.getElementById('header-title').innerText = currentData.title;
         document.getElementById('paper-content').innerHTML = currentData.html || currentData.content;
         
-        renderStripLayout();
+        renderQuestions();
         startTimer(45 * 60);
     }
 
-    // --- RENDER GIAO DIỆN (NÚT BẤM TRÊN DÒNG) ---
-    function renderStripLayout() {
-        const container = document.getElementById('answer-container');
+    // --- RENDER GIAO DIỆN LƯỚI (RESPONSIVE GRID) ---
+    function renderQuestions() {
+        const container = document.getElementById('questions-area');
         container.innerHTML = "";
         
         const keys = Object.keys(currentKeyMap).sort((a,b)=>parseInt(a)-parseInt(b));
@@ -267,50 +270,55 @@
         keys.forEach(num => {
             const info = currentKeyMap[num];
             
-            // Tạo dải câu hỏi
-            const strip = document.createElement('div');
-            strip.className = 'question-strip';
-            strip.id = `strip-${num}`;
+            const block = document.createElement('div');
+            block.className = 'question-block';
+            block.id = `q-block-${num}`;
             
-            let html = `<div class="q-number">Câu ${num}:</div>`;
+            let html = `<div class="q-title">Câu ${num}:</div>`;
             
             if(info.type === 'mcq') {
-                html += `<div class="options-row" id="opts-${num}" data-ans="">`;
+                // SỬ DỤNG GRID SYSTEM Ở ĐÂY
+                html += `<div class="options-grid" id="opts-${num}" data-ans="">`;
+                
                 ['A', 'B', 'C', 'D'].forEach(opt => {
-                    html += `<div class="opt-btn" onclick="selectOpt('${num}', '${opt}')">${opt}</div>`;
+                    html += `
+                        <div class="opt-box" onclick="selectOpt('${num}', '${opt}')" id="opt-${num}-${opt}">
+                            <div class="fake-radio"></div>
+                            <span><b>${opt}.</b></span>
+                        </div>
+                    `;
                 });
+                
                 html += `</div>`;
             } else {
-                html += `<input type="text" class="input-fill" id="ans-${num}" placeholder="Nhập câu trả lời..." oninput="highlightStrip('${num}')">`;
+                html += `<input type="text" class="input-fill" id="ans-${num}" placeholder="Nhập câu trả lời..." oninput="checkAnswered('${num}')">`;
             }
             
-            strip.innerHTML = html;
-            container.appendChild(strip);
+            block.innerHTML = html;
+            container.appendChild(block);
         });
     }
 
     window.selectOpt = (num, val) => {
         const parent = document.getElementById(`opts-${num}`);
-        const btns = parent.getElementsByClassName('opt-btn');
+        // Xóa class cũ
+        const allOpts = parent.querySelectorAll('.opt-box');
+        allOpts.forEach(el => el.classList.remove('selected'));
         
-        // Reset style
-        for(let btn of btns) btn.classList.remove('selected');
-        
-        // Select logic
-        // Tìm nút vừa bấm
-        for(let btn of btns) {
-            if(btn.innerText === val) btn.classList.add('selected');
-        }
+        // Active class mới
+        const selected = document.getElementById(`opt-${num}-${val}`);
+        selected.classList.add('selected');
         
         parent.setAttribute('data-ans', val);
-        highlightStrip(num);
+        document.getElementById(`q-block-${num}`).classList.add('answered');
     }
 
-    window.highlightStrip = (num) => {
-        document.getElementById(`strip-${num}`).classList.add('active');
+    window.checkAnswered = (num) => {
+        const val = document.getElementById(`ans-${num}`).value;
+        if(val.trim()) document.getElementById(`q-block-${num}`).classList.add('answered');
+        else document.getElementById(`q-block-${num}`).classList.remove('answered');
     }
 
-    // --- NỘP BÀI ---
     window.submitExam = () => {
         if(!confirm("Nộp bài thi?")) return;
         const name = document.getElementById('student-name').value;
