@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giáo Viên - AI Powered 🤖</title>
+    <title>Giáo Viên - AI Gemini Integration</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
@@ -15,17 +15,17 @@
         .main-content { flex: 1; padding: 30px; overflow-y: auto; background: #ecf0f1; }
         .editor-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 1000px; margin: 0 auto 30px auto; }
         
-        /* AI BUTTON STYLES */
-        .ai-section { background: #e8f5e9; padding: 20px; border-radius: 8px; border: 1px dashed #4caf50; margin-bottom: 20px; text-align: center; }
-        .btn-ai { background: linear-gradient(45deg, #11998e, #38ef7d); color: white; padding: 12px 25px; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 1em; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4); transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(56, 239, 125, 0.6); }
-        .btn-ai:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; transform: none; }
-        #ai-status { margin-top: 10px; font-style: italic; color: #555; }
-        
-        /* Input & Editor */
+        /* AI BUTTON */
+        .ai-section { background: #e3f2fd; padding: 20px; border-radius: 8px; border: 1px dashed #2196f3; margin-bottom: 20px; text-align: center; }
+        .btn-ai { background: linear-gradient(45deg, #2196f3, #21cbf3); color: white; padding: 12px 30px; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 1.1em; box-shadow: 0 4px 15px rgba(33, 203, 243, 0.4); transition: 0.3s; display: inline-flex; align-items: center; gap: 10px; }
+        .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(33, 203, 243, 0.6); }
+        .btn-ai.loading { background: #ccc; cursor: wait; transform: none; box-shadow: none; }
+        #ai-status { margin-top: 15px; font-weight: 500; min-height: 20px; }
+
         input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         .btn-primary { background: #2980b9; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
-        #editor-container { height: 300px; background: white; font-family: 'Times New Roman', serif; font-size: 14pt; }
+        
+        #editor-container { height: 350px; background: white; font-family: 'Times New Roman', serif; font-size: 14pt; }
         
         /* Key Builder */
         .key-builder-area { border: 2px dashed #bdc3c7; padding: 15px; border-radius: 5px; background: #fdfefe; margin-top: 10px; max-height: 400px; overflow-y: auto; }
@@ -33,8 +33,7 @@
         .key-num { width: 40px; font-weight: bold; text-align: center; color: #2980b9; background: #eaf2f8; padding: 8px 0; border-radius: 4px; }
         .btn-del-row { background: #ffcdd2; color: #c62828; border: none; padding: 0 15px; height: 40px; cursor: pointer; border-radius: 4px; }
         .btn-add-row { background: #27ae60; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; margin-right: 5px; }
-        
-        /* List View */
+
         .assignment-card { background: white; padding: 30px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 1000px; margin: 0 auto 20px auto; position: relative; }
         .hidden { display: none !important; }
     </style>
@@ -54,23 +53,25 @@
         <h2 id="class-name" style="color:#2c3e50;"></h2>
         
         <div class="editor-box">
-            <h3 style="margin-top:0; color:#2980b9;">📝 Soạn Bài Tập</h3>
+            <h3 style="margin-top:0; color:#2980b9;">🤖 Soạn Đề Thông Minh (Powered by Gemini)</h3>
             
             <div class="ai-section">
                 <input type="file" id="ai-image-input" accept="image/*" style="display:none" onchange="processImage()">
-                <button class="btn-ai" onclick="document.getElementById('ai-image-input').click()">
-                    <i class="fas fa-magic"></i> AI Tự Động Soạn Đề Từ Ảnh
+                <button id="btn-ai-trigger" class="btn-ai" onclick="document.getElementById('ai-image-input').click()">
+                    <i class="fas fa-robot"></i> Tải Ảnh Đề Thi Lên
                 </button>
                 <div id="ai-status"></div>
-                <small style="display:block; margin-top:5px; color:#777">Hỗ trợ: Ảnh chụp đề thi, File ảnh Word/PDF...</small>
+                <div style="font-size:0.85em; color:#666; margin-top:5px;">
+                    Hỗ trợ file ảnh (JPG, PNG). Tự động nhận diện chữ và đáp án.
+                </div>
             </div>
 
-            <input type="text" id="a-title" placeholder="Tiêu đề bài tập">
+            <input type="text" id="a-title" placeholder="Tiêu đề bài tập (Ví dụ: Unit 5 Test)">
             
             <div id="editor-container"></div>
             
             <div style="margin-top: 20px;">
-                <label><b>Cấu hình đáp án (AI sẽ tự điền vào đây):</b></label><br>
+                <label><b>Cấu hình đáp án (AI sẽ tự điền):</b></label><br>
                 <div style="margin-top:5px; margin-bottom:10px;">
                     <button class="btn-add-row" onclick="addKeyRow()"><i class="fas fa-plus"></i> Thêm</button>
                     <button class="btn-add-row" style="background:#95a5a6" onclick="resetKey()">Xóa hết</button>
@@ -93,9 +94,11 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
     
-    // --- 1. CẤU HÌNH GOOGLE GEMINI AI ---
-    // HÃY THAY MÃ API KEY CỦA BẠN VÀO DƯỚI ĐÂY
+    // =========================================================================
+    // !!! QUAN TRỌNG: DÁN MÃ API KEY CỦA BẠN VÀO GIỮA 2 DẤU NGOẶC KÉP !!!
     const GEMINI_API_KEY = "AIzaSyBnPcozSFz4XMVr0rFi5mUQSjCzLnyI4f0"; 
+    // Ví dụ: const GEMINI_API_KEY = "AIzaSyDxxxxxxxxx...";
+    // =========================================================================
 
     // --- CẤU HÌNH FIREBASE ---
     const firebaseConfig = {
@@ -113,7 +116,6 @@
     let curClass = null;
     let questionCount = 0;
 
-    // Init Quill
     var quill = new Quill('#editor-container', {
         theme: 'snow',
         modules: { toolbar: [['bold', 'italic', 'underline'], [{'list':'ordered'},{'list':'bullet'}], [{'color':[]},{'background':[]}], ['clean']] }
@@ -121,38 +123,52 @@
 
     // --- LOGIC XỬ LÝ AI ---
     window.processImage = async () => {
+        // Kiểm tra xem người dùng đã dán Key chưa
+        if(GEMINI_API_KEY.includes("DÁN_MÃ") || GEMINI_API_KEY.length < 10) {
+            alert("LỖI: Bạn chưa dán mã API Key!\nVui lòng mở file code lên, tìm dòng 'const GEMINI_API_KEY' và dán mã của bạn vào.");
+            return;
+        }
+
         const fileInput = document.getElementById('ai-image-input');
         const file = fileInput.files[0];
         if(!file) return;
 
+        // UI Loading
+        const btn = document.getElementById('btn-ai-trigger');
         const status = document.getElementById('ai-status');
-        status.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang gửi ảnh cho Google AI phân tích... (Đợi khoảng 5-10s)`;
+        btn.classList.add('loading');
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang phân tích...`;
+        btn.disabled = true;
+        status.innerHTML = `<span style="color:#2196f3">Đang gửi ảnh lên Google Gemini (Mất khoảng 5-10 giây)...</span>`;
         
-        // 1. Chuyển ảnh sang Base64
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = async function() {
-            const base64String = reader.result.split(',')[1]; // Bỏ header data:image...
+            const base64String = reader.result.split(',')[1]; 
 
-            // 2. Gọi Gemini API
+            // Sử dụng model gemini-1.5-flash cho nhanh và miễn phí
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
             
             const promptText = `
-                Bạn là trợ lý soạn đề thi. Hãy nhìn ảnh này và trích xuất nội dung đề thi.
-                YÊU CẦU OUTPUT: Trả về duy nhất 1 JSON Object (không markdown) có cấu trúc sau:
+                Bạn là một trợ lý giáo viên. Nhiệm vụ của bạn là trích xuất đề thi từ bức ảnh này.
+                
+                YÊU CẦU ĐẦU RA (OUTPUT JSON):
+                Trả về MỘT JSON Object duy nhất (không có markdown \`\`\`) với cấu trúc sau:
                 {
-                    "html": "Nội dung đề bài dưới dạng HTML (giữ nguyên định dạng đoạn văn, dùng thẻ <p>, <b>, <br>... nhưng KHÔNG bao gồm các câu hỏi trắc nghiệm A,B,C,D ở phần này, chỉ lấy văn bản đề bài hoặc câu hỏi chính)",
+                    "title": "Tên bài tập (nếu thấy)",
+                    "html": "Nội dung đề bài dưới dạng HTML. Giữ nguyên định dạng đoạn văn. Đối với các câu hỏi trắc nghiệm, HÃY GIỮ NGUYÊN nội dung câu hỏi và các lựa chọn A,B,C,D trong phần HTML này để học sinh đọc.",
                     "questions": {
                         "1": { "type": "mcq", "ans": "A" },
-                        "2": { "type": "fill", "ans": "example word" },
-                        "3": { "type": "essay", "ans": "example sentence" }
+                        "2": { "type": "fill", "ans": "example" }
                     }
                 }
-                Lưu ý: 
-                - Nếu thấy trắc nghiệm (A,B,C,D), type là "mcq".
-                - Nếu thấy điền từ, type là "fill".
-                - Nếu ảnh có khoanh tròn hoặc tô đậm đáp án, hãy cố gắng suy luận đưa vào trường "ans". Nếu không biết thì để trống.
-                - Số thứ tự câu hỏi trong "questions" phải khớp với ảnh.
+
+                HƯỚNG DẪN XỬ LÝ:
+                1. "html": Chứa toàn bộ nội dung văn bản để hiển thị. Dùng thẻ <p>, <b>, <br>.
+                2. "questions": Tự động phát hiện số thứ tự câu hỏi (1, 2, 3...). 
+                   - Nếu là trắc nghiệm (có A,B,C,D), type="mcq". Cố gắng giải đề để điền vào "ans" (nếu bạn tự tin), nếu không thì để trống hoặc "A".
+                   - Nếu là điền từ, type="fill".
+                   - Nếu là tự luận/viết lại câu, type="essay".
             `;
 
             const payload = {
@@ -170,43 +186,54 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(payload)
                 });
+                
+                if(!response.ok) {
+                    throw new Error(`Lỗi kết nối: ${response.status} - ${response.statusText}`);
+                }
+
                 const data = await response.json();
                 
-                // 3. Xử lý kết quả trả về
+                if(!data.candidates || !data.candidates[0].content) {
+                    throw new Error("AI không trả về kết quả. Có thể ảnh bị lỗi hoặc vi phạm chính sách.");
+                }
+
                 const textResponse = data.candidates[0].content.parts[0].text;
-                // Làm sạch JSON (đôi khi AI thêm ```json ở đầu)
+                // Làm sạch JSON
                 const cleanJson = textResponse.replace(/```json|```/g, '').trim();
                 const result = JSON.parse(cleanJson);
 
-                // 4. Điền vào giao diện
+                // ĐIỀN DỮ LIỆU VÀO WEB
+                if(result.title) document.getElementById('a-title').value = result.title;
                 quill.root.innerHTML = result.html; // Điền đề bài
                 
-                // Điền đáp án
+                // Điền Key
                 resetKey();
-                Object.keys(result.questions).sort((a,b)=>a-b).forEach(num => {
-                    const q = result.questions[num];
-                    addKeyRowWithData(num, q.type, q.ans);
-                });
+                if(result.questions) {
+                    Object.keys(result.questions).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(num => {
+                        const q = result.questions[num];
+                        addKeyRowWithData(num, q.type, q.ans);
+                    });
+                }
 
-                status.innerHTML = `<span style="color:green"><i class="fas fa-check"></i> Đã xử lý xong! Hãy kiểm tra lại.</span>`;
+                status.innerHTML = `<span style="color:green; font-weight:bold"><i class="fas fa-check-circle"></i> Đã xong! Hãy kiểm tra lại nội dung bên dưới.</span>`;
             } catch (error) {
                 console.error(error);
-                status.innerHTML = `<span style="color:red">Lỗi: Không thể phân tích ảnh. Hãy thử ảnh rõ nét hơn.</span>`;
+                status.innerHTML = `<span style="color:red; font-weight:bold"><i class="fas fa-exclamation-triangle"></i> Lỗi: ${error.message}</span><br><small>Kiểm tra lại API Key hoặc thử ảnh khác.</small>`;
+            } finally {
+                btn.classList.remove('loading');
+                btn.innerHTML = `<i class="fas fa-magic"></i> AI Tự Động Soạn Đề Từ Ảnh`;
+                btn.disabled = false;
             }
         };
     }
 
-    // --- KEY BUILDER UTILS ---
+    // --- HELPER FUNCTIONS ---
     window.addKeyRowWithData = (num, type, ans) => {
         const c = document.getElementById('key-container');
         if(c.innerText.includes('Chưa có câu hỏi')) c.innerHTML = "";
-        
-        // Cập nhật biến đếm nếu cần
         if(parseInt(num) > questionCount) questionCount = parseInt(num);
-        
         const id = `row-${num}`;
         
-        // Tạo HTML cho dòng
         let inputHtml = "";
         if(type === 'mcq') {
             inputHtml = `<select class="ans-input" style="width:100%"><option value="A" ${ans=='A'?'selected':''}>A</option><option value="B" ${ans=='B'?'selected':''}>B</option><option value="C" ${ans=='C'?'selected':''}>C</option><option value="D" ${ans=='D'?'selected':''}>D</option></select>`;
@@ -225,11 +252,9 @@
                 <div class="key-val" id="val-${id}" style="flex:1">${inputHtml}</div>
                 <button class="btn-del-row" onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i></button>
             </div>`;
-        
         c.insertAdjacentHTML('beforeend', html);
     }
     
-    // --- CÁC HÀM CŨ GIỮ NGUYÊN ---
     window.addKeyRow = () => { questionCount++; addKeyRowWithData(questionCount, 'mcq', 'A'); }
     window.resetKey = () => { document.getElementById('key-container').innerHTML = "<div style='text-align:center;color:#999;padding:40px;'>Chưa có câu hỏi.</div>"; questionCount = 0; }
     window.changeType = (id) => {
@@ -255,14 +280,12 @@
         const content = quill.root.innerHTML;
         const rows = document.querySelectorAll('.key-row');
         const keyMap = {};
-        
         rows.forEach(r => {
-            const numText = r.querySelector('.key-num').innerText.replace('#', ''); // Lấy số câu chính xác từ UI
+            const numText = r.querySelector('.key-num').innerText.replace('#', '');
             const t = r.querySelector('.key-type').value;
             const a = r.querySelector('.ans-input').value.trim();
             if(a) keyMap[numText] = {type: t, ans: a};
         });
-
         if(title && Object.keys(keyMap).length > 0) {
             push(ref(db, `assignments/${curClass}`), { title: title, content: content, correctAnswer: JSON.stringify(keyMap), timestamp: Date.now() });
             alert("Đã đăng bài!");
@@ -279,7 +302,7 @@
             if(!d) return list.innerHTML = "<p>Chưa có bài.</p>";
             Object.keys(d).reverse().forEach(aid => {
                 const i = d[aid];
-                list.innerHTML += `<div class="assignment-card"><button onclick="delAss('${aid}')" style="float:right;color:red;border:none;background:none;cursor:pointer">Xóa</button><h3>${i.title}</h3><div style="color:green"><i class="fas fa-check-circle"></i> Đã tạo đề thành công</div></div>`;
+                list.innerHTML += `<div class="assignment-card"><button onclick="delAss('${aid}')" style="float:right;color:red;border:none;background:none;cursor:pointer">Xóa</button><h3>${i.title}</h3><div style="color:green"><i class="fas fa-check-circle"></i> Đã tạo đề</div></div>`;
             });
         });
     }
