@@ -3,34 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Học Sinh - Làm Bài</title>
+    <title>Học Sinh - Làm Bài (V8 An Toàn)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* CSS GIỮ NGUYÊN BẢN RỘNG A4 */
+        /* GIỮ NGUYÊN GIAO DIỆN A4 ĐẸP MẮT */
         body { font-family: 'Segoe UI', sans-serif; background: #e0e0e0; padding: 20px; margin: 0; }
         .container { max-width: 1200px; width: 95%; margin: 0 auto; }
         .header-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; }
         select { width: 100%; padding: 12px; font-size: 1.1em; border: 2px solid #009688; border-radius: 5px; max-width: 500px;}
         
         .post { background: white; padding: 30px 40px; margin-bottom: 30px; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .content { white-space: pre-wrap; font-family: 'Times New Roman', Times, serif; font-size: 13pt; line-height: 1.5; margin: 15px 0; text-align: justify; }
+        .content { white-space: pre-wrap; font-family: 'Times New Roman', Times, serif; font-size: 14pt; line-height: 1.5; margin: 15px 0; text-align: justify; }
         
         .student-input-area { background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #ddd; margin-top: 20px; }
+        
+        /* CẤU TRÚC CÂU HỎI */
         .question-row { display: flex; align-items: flex-start; margin-bottom: 15px; border-bottom: 1px dashed #eee; padding-bottom: 10px; flex-wrap: wrap; }
-        .q-num { width: 40px; font-weight: bold; color: #009688; font-size: 1.1em; padding-top: 5px; }
+        
+        /* Số thứ tự câu hỏi */
+        .q-label { 
+            width: 80px; font-weight: bold; color: #555; font-size: 0.9em; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            margin-right: 15px; background: #e0f2f1; border-radius: 4px; padding: 5px;
+        }
+        .q-type-badge { font-size: 0.7em; text-transform: uppercase; color: #00796b; margin-top: 2px; }
         
         /* Bong bóng trắc nghiệm */
-        .bubble-group { display: flex; gap: 10px; align-items: center; }
+        .bubble-group { display: flex; gap: 10px; align-items: center; padding-top: 5px; }
         .option-btn { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #bbb; background: #fff; cursor: pointer; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #555; transition: 0.2s; }
         .option-btn:hover { background: #f0f0f0; }
-        .option-btn.selected { background: #009688; color: white; border-color: #00796b; transform: scale(1.1); }
+        .option-btn.selected { background: #009688; color: white; border-color: #00796b; transform: scale(1.1); box-shadow: 0 2px 5px rgba(0,150,136,0.3); }
 
-        .input-fill { padding: 8px; border: 1px solid #ccc; border-radius: 4px; max-width: 300px; font-family: monospace; }
-        .input-essay { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; height: 60px; font-family: monospace; }
+        .input-fill { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; max-width: 300px; font-family: monospace; font-size: 1em; }
+        .input-essay { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; height: 60px; font-family: monospace; font-size: 1em;}
         
-        input[type="text"].main-name { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; }
-        button.submit-btn { background: #2980b9; color: white; border: none; font-weight: bold; cursor: pointer; padding: 15px; width: 100%; font-size: 1.1em; border-radius: 4px; margin-top: 20px; }
-        button.submit-btn:disabled { background: #bdc3c7; cursor: not-allowed; }
+        input[type="text"].main-name { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #009688; border-radius: 4px; background: #e0f2f1; font-weight: bold; color: #004d40; }
+        
+        button.submit-btn { background: #2980b9; color: white; border: none; font-weight: bold; cursor: pointer; padding: 15px; width: 100%; font-size: 1.1em; border-radius: 4px; margin-top: 20px; transition: 0.3s; }
+        button.submit-btn:hover { background: #2471a3; box-shadow: 0 4px 10px rgba(41, 128, 185, 0.3); }
+        button.submit-btn:disabled { background: #bdc3c7; cursor: not-allowed; box-shadow: none; }
+        
         .result-box { margin-top: 20px; padding: 15px; background: #fffde7; border: 2px solid #ffb74d; border-radius: 8px; display: none; }
     </style>
 </head>
@@ -38,16 +50,17 @@
 
 <div class="container">
     <div class="header-section">
-        <h2 style="color:#009688; margin:0 0 10px 0;">HỆ THỐNG BÀI TẬP</h2>
-        <select id="class-select" onchange="loadAss()"><option value="">-- Đang tải... --</option></select>
+        <h2 style="color:#009688; margin:0 0 10px 0;"><i class="fas fa-graduation-cap"></i> PHÒNG THI TRỰC TUYẾN</h2>
+        <select id="class-select" onchange="loadAss()"><option value="">-- Đang tải dữ liệu... --</option></select>
     </div>
-    <div id="ass-area"><p style="text-align:center; color:#777; margin-top:50px;">Vui lòng chọn lớp.</p></div>
+    <div id="ass-area"><p style="text-align:center; color:#777; margin-top:50px;">Vui lòng chọn lớp để tải đề thi.</p></div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
+    // --- CẤU HÌNH FIREBASE ---
     const firebaseConfig = {
       apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE",
       authDomain: "lophoconl.firebaseapp.com",
@@ -61,6 +74,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    // Load Lớp
     onValue(ref(db, 'classes'), snap => {
         const sel = document.getElementById('class-select');
         sel.innerHTML = '<option value="">-- Chọn lớp của em --</option>';
@@ -68,147 +82,203 @@
         if(d) Object.keys(d).forEach(k => sel.innerHTML += `<option value="${k}">${d[k].name}</option>`);
     });
 
+    // Load Bài tập
     window.loadAss = () => {
         const cid = document.getElementById('class-select').value;
         const area = document.getElementById('ass-area');
         if(!cid) return area.innerHTML = "";
-        area.innerHTML = "<div style='text-align:center'><i class='fas fa-spinner fa-spin'></i> Đang tải...</div>";
+        
+        area.innerHTML = "<div style='text-align:center; padding:40px;'><i class='fas fa-spinner fa-spin fa-2x'></i><br>Đang tải đề thi...</div>";
         
         onValue(ref(db, `assignments/${cid}`), snap => {
             area.innerHTML = "";
             const d = snap.val();
-            if(!d) return area.innerHTML = "<p style='text-align:center'>Chưa có bài tập.</p>";
+            if(!d) return area.innerHTML = "<p style='text-align:center'>Chưa có bài tập nào trong lớp này.</p>";
 
-            Object.keys(d).reverse().forEach(k => {
-                const q = d[k];
+            Object.keys(d).reverse().forEach(assignmentID => {
+                const q = d[assignmentID];
                 
-                // --- ĐỌC KEY JSON ---
+                // Giải mã Key JSON của bài tập này
                 let keyMap = {};
-                try {
-                    // Cố gắng parse JSON, nếu lỗi (do bài cũ) thì bỏ qua
-                    keyMap = JSON.parse(q.correctAnswer);
-                } catch(e) { console.log("Bài cũ, không phải JSON"); }
-
+                try { keyMap = JSON.parse(q.correctAnswer); } catch(e) {}
                 const hasKey = Object.keys(keyMap).length > 0;
-                // Mã hóa lại để lưu vào nút Nộp bài
-                const keyJson = hasKey ? encodeURIComponent(JSON.stringify(keyMap)) : "";
+                
+                // Mã hóa key để gắn vào nút nộp bài (để biết chấm theo đáp án nào)
+                const keyJsonSafe = hasKey ? encodeURIComponent(JSON.stringify(keyMap)) : "";
 
                 let inputsHTML = "";
                 if(hasKey) {
                     Object.keys(keyMap).sort((a,b)=>a-b).forEach(num => {
                         const info = keyMap[num];
+                        
+                        // XÁC ĐỊNH ID ĐỘC NHẤT CHO TỪNG CÂU HỎI
+                        // ID = "in" + ID_Bài_Tập + Số_Câu (VD: in-Njx123-1)
+                        // Điều này đảm bảo không bao giờ bị trùng lặp giữa các bài
+                        const uniqueID = `in-${assignmentID}-${num}`;
+                        const uniqueGroup = `grp-${assignmentID}-${num}`;
+
                         let inputControl = "";
+                        let labelType = "";
 
                         if(info.type === 'mcq') {
+                            labelType = "Trắc nghiệm";
                             inputControl = `
-                                <div class="bubble-group" id="q-${k}-${num}" data-type="mcq">
-                                    <div class="option-btn" onclick="selOpt('${k}', '${num}', 'A')">A</div>
-                                    <div class="option-btn" onclick="selOpt('${k}', '${num}', 'B')">B</div>
-                                    <div class="option-btn" onclick="selOpt('${k}', '${num}', 'C')">C</div>
-                                    <div class="option-btn" onclick="selOpt('${k}', '${num}', 'D')">D</div>
+                                <div class="bubble-group" id="${uniqueGroup}" data-val="">
+                                    <div class="option-btn" onclick="selOpt('${uniqueGroup}', 'A')">A</div>
+                                    <div class="option-btn" onclick="selOpt('${uniqueGroup}', 'B')">B</div>
+                                    <div class="option-btn" onclick="selOpt('${uniqueGroup}', 'C')">C</div>
+                                    <div class="option-btn" onclick="selOpt('${uniqueGroup}', 'D')">D</div>
                                 </div>`;
                         } else if(info.type === 'fill') {
-                            inputControl = `<input type="text" class="input-fill" id="in-${k}-${num}" placeholder="Điền đáp án..." autocomplete="off">`;
+                            labelType = "Điền từ";
+                            inputControl = `<input type="text" class="input-fill" id="${uniqueID}" placeholder="Nhập đáp án..." autocomplete="off">`;
                         } else {
-                            inputControl = `<textarea class="input-essay" id="in-${k}-${num}" placeholder="Viết câu trả lời..."></textarea>`;
+                            labelType = "Tự luận";
+                            inputControl = `<textarea class="input-essay" id="${uniqueID}" placeholder="Viết câu trả lời..."></textarea>`;
                         }
 
                         inputsHTML += `
                             <div class="question-row">
-                                <div class="q-num">${num}.</div>
+                                <div class="q-label">
+                                    <span>Câu ${num}</span>
+                                    <span class="q-type-badge">${labelType}</span>
+                                </div>
                                 <div style="flex:1">${inputControl}</div>
                             </div>
                         `;
                     });
                 } else {
-                    inputsHTML = "<p style='color:red'>Bài này chưa có cấu hình trả lời trực tuyến.</p>";
+                    inputsHTML = "<p style='color:red; text-align:center;'>⚠ Bài này giáo viên chưa tạo phiếu trả lời.</p>";
                 }
 
+                // Render toàn bộ bài tập
                 area.innerHTML += `
-                    <div class="post" id="post-${k}">
+                    <div class="post" id="post-${assignmentID}">
                         <h3>${q.title}</h3>
                         <div class="content">${q.content}</div>
+                        
                         <div class="student-input-area">
-                            <input type="text" class="main-name" id="name-${k}" placeholder="Họ và Tên của em (Bắt buộc)">
+                            <label><b><i class="fas fa-user"></i> Họ và tên:</b></label>
+                            <input type="text" class="main-name" id="name-${assignmentID}" placeholder="Nhập tên em vào đây...">
+                            
+                            <hr style="margin: 20px 0; border:0; border-top:1px solid #ddd;">
+                            
                             ${inputsHTML}
-                            <button class="submit-btn" onclick="submit('${cid}', '${k}')" data-key="${keyJson}">NỘP BÀI LÀM</button>
-                            <div id="res-${k}" class="result-box"></div>
+                            
+                            <button class="submit-btn" onclick="submit('${cid}', '${assignmentID}')" data-key="${keyJsonSafe}">
+                                <i class="fas fa-paper-plane"></i> NỘP BÀI THI
+                            </button>
+                            
+                            <div id="res-${assignmentID}" class="result-box"></div>
                         </div>
                     </div>`;
             });
         });
     }
 
-    window.selOpt = (aid, qNum, val) => {
-        const group = document.getElementById(`q-${aid}-${qNum}`);
+    // Xử lý chọn trắc nghiệm (Đảm bảo chỉ tác động vào đúng nhóm câu hỏi đó)
+    window.selOpt = (groupID, val) => {
+        const group = document.getElementById(groupID);
         const btns = group.getElementsByClassName('option-btn');
+        // Reset màu nút trong nhóm này
         for(let btn of btns) btn.classList.remove('selected');
+        // Tô màu nút vừa chọn
         for(let btn of btns) if(btn.innerText === val) btn.classList.add('selected');
+        // Lưu giá trị vào data-val của nhóm
         group.setAttribute('data-val', val);
     }
 
-    window.submit = (cid, aid) => {
-        const name = document.getElementById(`name-${aid}`).value;
-        if(!name) return alert("Vui lòng nhập tên!");
+    // Nộp bài
+    window.submit = (cid, aid) => { // aid chính là Assignment ID (Mã bài tập)
+        const nameInput = document.getElementById(`name-${aid}`);
+        const name = nameInput.value.trim();
+        if(!name) {
+            nameInput.focus();
+            return alert("Em ơi, nhớ ghi tên trước khi nộp nhé!");
+        }
 
         const btn = document.querySelector(`#post-${aid} .submit-btn`);
         const keyJson = btn.getAttribute('data-key');
-        if(!keyJson) return alert("Lỗi dữ liệu bài tập.");
+        if(!keyJson) return;
         
         const keyMap = JSON.parse(decodeURIComponent(keyJson));
 
         let answersToSave = "";
         let correctCount = 0;
         let totalCount = 0;
-        let detailsHTML = "<b>Chi tiết:</b><br>";
+        let detailsHTML = "<b>📝 Chi tiết kết quả:</b><br>";
 
+        // Duyệt từng câu hỏi trong Key của bài tập này
         Object.keys(keyMap).sort((a,b)=>a-b).forEach(num => {
             const info = keyMap[num];
             let studentAns = "";
 
+            // Lấy đáp án dựa trên ID độc nhất
             if(info.type === 'mcq') {
-                const group = document.getElementById(`q-${aid}-${num}`);
-                studentAns = group.getAttribute('data-val') || "?";
+                const uniqueGroup = `grp-${aid}-${num}`;
+                const group = document.getElementById(uniqueGroup);
+                studentAns = group.getAttribute('data-val') || "?"; // Nếu chưa chọn thì là ?
             } else {
-                const input = document.getElementById(`in-${aid}-${num}`);
-                studentAns = input.value.trim() || "(trống)";
+                const uniqueID = `in-${aid}-${num}`;
+                const input = document.getElementById(uniqueID);
+                studentAns = input.value.trim() || "(bỏ trống)";
             }
 
+            // Chấm điểm
             let isCorrect = false;
-            // So sánh đáp án
             if(studentAns.toLowerCase() === info.ans.toLowerCase()) {
                 isCorrect = true;
                 if(info.type !== 'essay') correctCount++;
             }
 
             if(info.type !== 'essay') totalCount++;
-            answersToSave += `${num}:${studentAns} | `;
+            
+            // Lưu chuỗi kết quả
+            answersToSave += `${num}. ${studentAns} | `;
 
-            const color = isCorrect ? 'green' : 'red';
-            const icon = isCorrect ? '✔' : '✖';
+            // Tạo thông báo chi tiết
+            const color = isCorrect ? '#2e7d32' : '#c62828';
+            const icon = isCorrect ? '<i class="fas fa-check"></i>' : '<i class="fas fa-times"></i>';
             
             if(info.type === 'essay') {
-                detailsHTML += `<div style="margin-top:5px; border-bottom:1px solid #eee;">Câu ${num}: <i>${studentAns}</i><br><small style="color:blue">Gợi ý: ${info.ans}</small></div>`;
+                detailsHTML += `<div style="margin-top:8px; border-bottom:1px solid #eee; padding-bottom:5px;">
+                    <span style="font-weight:bold; color:#009688">Câu ${num}:</span> <i>${studentAns}</i><br>
+                    <small style="color:#1565c0">👉 Gợi ý: ${info.ans}</small>
+                </div>`;
             } else {
-                detailsHTML += `<div style="margin-top:5px; color:${color}">Câu ${num}: ${studentAns} ${icon} (Đáp án: <b>${info.ans}</b>)</div>`;
+                detailsHTML += `<div style="margin-top:5px; color:${color}">
+                    <b>Câu ${num}:</b> ${studentAns} ${icon} ${!isCorrect ? `(Đúng: <b>${info.ans}</b>)` : ''}
+                </div>`;
             }
         });
 
         const scoreText = `${correctCount}/${totalCount}`;
         const percent = totalCount > 0 ? Math.round((correctCount/totalCount)*100) : 0;
 
+        // Gửi lên Firebase
         push(ref(db, `answers/${cid}/${aid}`), {
-            name: name, answer: answersToSave, score: scoreText, percent: percent, timestamp: Date.now()
+            name: name,
+            answer: answersToSave,
+            score: scoreText,
+            percent: percent,
+            timestamp: Date.now()
         });
 
+        // Hiện kết quả tại chỗ
         const resBox = document.getElementById(`res-${aid}`);
         resBox.style.display = "block";
         resBox.innerHTML = `
-            <h3 style="color:${percent >= 50 ? 'green':'orange'}">Kết quả: ${scoreText} (${percent}%)</h3>
-            <div style="background:white; padding:10px; max-height:300px; overflow-y:auto; border:1px solid #ccc;">${detailsHTML}</div>
+            <div style="text-align:center; margin-bottom:15px;">
+                <h2 style="color:${percent >= 50 ? '#2e7d32':'#ef6c00'}; margin:0;">${scoreText}</h2>
+                <small>(${percent}% chính xác)</small>
+            </div>
+            <div style="background:white; padding:15px; max-height:300px; overflow-y:auto; border:1px solid #ddd; border-radius:4px;">${detailsHTML}</div>
         `;
+        
+        // Khóa bài sau khi nộp
         btn.disabled = true;
-        btn.innerText = "ĐÃ NỘP BÀI";
+        btn.innerHTML = "<i class='fas fa-lock'></i> ĐÃ NỘP BÀI";
+        btn.style.background = "#7f8c8d";
     }
 </script>
 </body>
