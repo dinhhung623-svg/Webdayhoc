@@ -3,115 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Lớp Học (Giáo Viên)</title>
+    <title>Giáo Viên - Quản Lý & Chấm Điểm</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; height: 100vh; margin: 0; background: #f0f2f5; }
+        body { font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; margin: 0; background: #f0f2f5; }
+        .sidebar { width: 280px; background: #2c3e50; color: white; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; background: #1a252f; border-bottom: 1px solid #34495e; }
+        .class-item { padding: 12px; margin: 5px 10px; background: #34495e; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between; }
+        .class-item:hover, .class-item.active { background: #16a085; }
+        .btn-icon { background: none; border: none; color: #fff; cursor: pointer; }
         
-        /* SIDEBAR */
-        .sidebar { width: 280px; background: #2c3e50; color: white; display: flex; flex-direction: column; border-right: 1px solid #ddd; }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid #34495e; background: #1a252f; }
-        .sidebar-content { flex: 1; overflow-y: auto; padding: 10px; }
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; }
+        .editor-box { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn-primary { background: #2980b9; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; font-weight: bold;}
         
-        .class-item { 
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 15px; margin-bottom: 5px; border-radius: 6px; 
-            background: #34495e; cursor: pointer; transition: 0.2s;
-        }
-        .class-item:hover { background: #16a085; }
-        .class-item.active { background: #1abc9c; border-left: 4px solid #fff; }
-        .class-name { flex: 1; font-weight: 500; }
-        .class-actions { display: none; gap: 8px; }
-        .class-item:hover .class-actions { display: flex; } /* Chỉ hiện nút khi di chuột vào */
-        
-        .btn-icon { background: none; border: none; color: #fff; cursor: pointer; font-size: 0.9em; padding: 2px; }
-        .btn-icon:hover { color: #f1c40f; }
-        .btn-icon.del:hover { color: #e74c3c; }
-
-        .add-class-btn { width: 100%; padding: 15px; background: #e67e22; border: none; color: white; cursor: pointer; font-weight: bold; font-size: 1em; }
-        .add-class-btn:hover { background: #d35400; }
-
-        /* MAIN CONTENT */
-        .main-content { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; }
+        .assignment-card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; border-left: 5px solid #bdc3c7; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .key-box { background: #e8f8f5; color: #27ae60; padding: 10px; margin-top: 10px; border: 1px dashed #27ae60; font-family: monospace; }
         .hidden { display: none !important; }
-
-        .editor-box { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 30px; }
-        
-        /* Form inputs */
-        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; font-family: inherit; box-sizing: border-box; }
-        textarea { resize: vertical; font-family: 'Courier New', monospace; line-height: 1.5; }
-        
-        .btn-primary { background: #2980b9; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-primary:hover { background: #2471a3; }
-
-        /* Danh sách bài tập */
-        .assignment-card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #bdc3c7; position: relative; }
-        .assignment-card.theory { border-left-color: #8e44ad; } /* Màu tím cho lý thuyết */
-        .assignment-card.exercise { border-left-color: #27ae60; } /* Màu xanh cho bài tập */
-        
-        .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.8em; color: white; margin-bottom: 5px; }
-        .bg-theory { background: #8e44ad; }
-        .bg-exercise { background: #27ae60; }
-
-        .card-actions { position: absolute; top: 15px; right: 15px; }
-        .english-content { white-space: pre-wrap; background: #fafafa; padding: 15px; border: 1px dashed #ddd; margin-top: 10px; font-family: 'Consolas', monospace; }
-        
-        .loading { text-align: center; color: #7f8c8d; padding: 20px; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <div class="sidebar-header">
-        <h3 style="margin:0; color:#ecf0f1;"><i class="fas fa-chalkboard-teacher"></i> Giáo Viên</h3>
-    </div>
-    <div class="sidebar-content" id="class-list">
-        <div class="loading">Đang tải lớp...</div>
-    </div>
-    <button class="add-class-btn" onclick="addClass()"><i class="fas fa-plus-circle"></i> Tạo Lớp Mới</button>
+    <div class="sidebar-header"><h3><i class="fas fa-chalkboard-teacher"></i> Giáo Viên</h3></div>
+    <div id="class-list" style="flex:1; overflow-y:auto; padding-top:10px;"></div>
+    <button onclick="addClass()" style="padding:15px; background:#e67e22; border:none; color:white; font-weight:bold; cursor:pointer;">+ Thêm Lớp</button>
 </div>
 
 <div class="main-content">
-    
-    <div id="welcome-screen" style="text-align: center; margin-top: 10vh; color: #7f8c8d;">
-        <i class="fas fa-school" style="font-size: 5em; margin-bottom: 20px;"></i>
-        <h2>Chào mừng thầy/cô!</h2>
-        <p>Chọn một lớp bên trái để bắt đầu soạn giáo án.</p>
+    <div id="welcome" style="text-align:center; margin-top:100px; color:#7f8c8d;">
+        <i class="fas fa-school" style="font-size:4em;"></i><h2>Chọn lớp để bắt đầu</h2>
     </div>
 
-    <div id="class-manager" class="hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 id="current-class-name" style="color: #2c3e50; margin: 0;"></h2>
-            <div style="color: #7f8c8d; font-size: 0.9em;">
-                <i class="fas fa-info-circle"></i> Đang quản lý
-            </div>
-        </div>
-
+    <div id="manager" class="hidden">
+        <h2 id="class-name" style="color:#2c3e50;"></h2>
+        
         <div class="editor-box">
-            <h3 style="margin-top:0; color: #2980b9;"><i class="fas fa-edit"></i> Soạn Nội Dung</h3>
+            <h3 style="margin-top:0; color:#2980b9;">📝 Soạn Bài Tập & Đáp Án</h3>
             
-            <label><b>Tiêu đề:</b></label>
-            <input type="text" id="a-title" placeholder="VD: Unit 8 - Grammar: Although / However">
+            <input type="text" id="a-title" placeholder="Tiêu đề (VD: Unit 8 - Practice 1)">
             
-            <div style="display: flex; gap: 10px;">
-                <div style="flex: 1;">
-                    <label><b>Loại bài:</b></label>
-                    <select id="a-type">
-                        <option value="theory">📖 Lý thuyết (Grammar)</option>
-                        <option value="exercise">📝 Bài tập (Practice)</option>
-                    </select>
-                </div>
-            </div>
+            <label><b>Nội dung câu hỏi:</b></label>
+            <textarea id="a-content" rows="6" placeholder="Paste câu hỏi trắc nghiệm vào đây..."></textarea>
+            
+            <label style="color:#c0392b;"><b>🔑 Đáp án đúng (để máy tự chấm):</b></label>
+            <textarea id="a-key" rows="2" placeholder="Nhập đáp án theo thứ tự. VD: 1A 2B 3C 4D... (Máy sẽ so sánh chuỗi này với bài làm của HS)"></textarea>
+            <small><i>Lưu ý: Nếu để trống ô này, bài sẽ không được chấm điểm tự động.</i></small>
 
-            <label><b>Nội dung (Copy từ Word dán vào đây):</b></label>
-            <textarea id="a-content" rows="8" placeholder="Dán nội dung lý thuyết hoặc câu hỏi trắc nghiệm vào đây..."></textarea>
-            
-            <button class="btn-primary" onclick="addAssignment()"><i class="fas fa-paper-plane"></i> Đăng Bài</button>
+            <button class="btn-primary" onclick="addAssignment()">Đăng Bài</button>
         </div>
 
-        <h3 style="color: #34495e;">📚 Danh sách bài học của lớp này</h3>
-        <div id="assignment-list">
-            </div>
+        <h3>Danh sách bài tập:</h3>
+        <div id="list">Loading...</div>
     </div>
 </div>
 
@@ -119,7 +63,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-    // --- CẤU HÌNH FIREBASE ---
+    // --- CẤU HÌNH ---
     const firebaseConfig = {
       apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE",
       authDomain: "lophoconl.firebaseapp.com",
@@ -132,151 +76,80 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    let currentClassId = null;
+    let curClass = null;
 
-    // --- 1. QUẢN LÝ LỚP HỌC (CRUD) ---
+    // --- LOGIC ---
+    window.addClass = () => { const n = prompt("Tên lớp:"); if(n) push(ref(db, 'classes'), {name: n}); }
+    
+    // Xóa/Sửa Lớp
+    window.delClass = (e, id) => { e.stopPropagation(); if(confirm("Xóa lớp này?")) { remove(ref(db, `classes/${id}`)); remove(ref(db, `assignments/${id}`)); remove(ref(db, `answers/${id}`)); if(curClass===id) location.reload(); }}
+    window.editClass = (e, id, old) => { e.stopPropagation(); const n = prompt("Tên mới:", old); if(n) update(ref(db, `classes/${id}`), {name: n}); }
 
-    // Thêm lớp
-    window.addClass = function() {
-        const name = prompt("Nhập tên lớp mới (VD: Lớp 10A1):");
-        if(name) {
-            push(ref(db, 'classes'), { name: name });
-        }
-    }
-
-    // Sửa tên lớp
-    window.editClass = function(e, id, oldName) {
-        e.stopPropagation(); // Ngăn việc click vào nút sửa thì bị chọn lớp
-        const newName = prompt("Đổi tên lớp thành:", oldName);
-        if(newName && newName !== oldName) {
-            update(ref(db, `classes/${id}`), { name: newName });
-        }
-    }
-
-    // Xóa lớp (Xóa sạch dữ liệu liên quan)
-    window.deleteClass = function(e, id) {
-        e.stopPropagation();
-        if(confirm("CẢNH BÁO NGUY HIỂM!\n\nHành động này sẽ xóa vĩnh viễn:\n- Lớp học này\n- Tất cả bài tập trong lớp\n- Tất cả bài làm của học sinh\n\nBạn có chắc chắn muốn xóa?")) {
-            // Thực hiện xóa chuỗi 3 nơi
-            remove(ref(db, `classes/${id}`));
-            remove(ref(db, `assignments/${id}`));
-            remove(ref(db, `answers/${id}`));
-            
-            // Nếu đang chọn lớp bị xóa thì reset giao diện
-            if(currentClassId === id) {
-                currentClassId = null;
-                document.getElementById('welcome-screen').classList.remove('hidden');
-                document.getElementById('class-manager').classList.add('hidden');
-            }
-        }
-    }
-
-    // Hiển thị danh sách lớp (Realtime)
-    onValue(ref(db, 'classes'), (snap) => {
-        const list = document.getElementById('class-list');
-        list.innerHTML = "";
+    // Load Lớp
+    onValue(ref(db, 'classes'), snap => {
+        document.getElementById('class-list').innerHTML = "";
         const data = snap.val();
-        
-        if(data) {
-            Object.keys(data).forEach(key => {
-                const cls = data[key];
-                
-                // Tạo item HTML
-                const div = document.createElement('div');
-                div.className = `class-item ${currentClassId === key ? 'active' : ''}`;
-                div.onclick = () => selectClass(key, cls.name, div);
-                
-                div.innerHTML = `
-                    <span class="class-name">${cls.name}</span>
-                    <div class="class-actions">
-                        <button class="btn-icon" onclick="editClass(event, '${key}', '${cls.name}')" title="Đổi tên"><i class="fas fa-pen"></i></button>
-                        <button class="btn-icon del" onclick="deleteClass(event, '${key}')" title="Xóa lớp"><i class="fas fa-trash"></i></button>
+        if(data) Object.keys(data).forEach(k => {
+            document.getElementById('class-list').innerHTML += `
+                <div class="class-item ${curClass===k?'active':''}" onclick="selClass('${k}', '${data[k].name}')">
+                    <span>${data[k].name}</span>
+                    <div>
+                        <button class="btn-icon" onclick="editClass(event, '${k}', '${data[k].name}')"><i class="fas fa-pen"></i></button>
+                        <button class="btn-icon" onclick="delClass(event, '${k}')"><i class="fas fa-trash"></i></button>
                     </div>
-                `;
-                list.appendChild(div);
-            });
-        } else {
-            list.innerHTML = "<div style='color:#bdc3c7; text-align:center; padding:10px;'>Chưa có lớp nào</div>";
-        }
+                </div>`;
+        });
     });
 
-    // Chọn lớp để quản lý
-    window.selectClass = function(key, name, element) {
-        currentClassId = key;
-        
-        // Cập nhật UI
-        document.getElementById('welcome-screen').classList.add('hidden');
-        document.getElementById('class-manager').classList.remove('hidden');
-        document.getElementById('current-class-name').innerText = name;
-
-        // Highlight active
-        document.querySelectorAll('.class-item').forEach(el => el.classList.remove('active'));
-        if(element) element.classList.add('active');
-
-        // Load bài tập
-        loadAssignments(key);
+    window.selClass = (k, n) => {
+        curClass = k;
+        document.getElementById('welcome').classList.add('hidden');
+        document.getElementById('manager').classList.remove('hidden');
+        document.getElementById('class-name').innerText = n;
+        loadAss(k);
+        // Refresh lại giao diện sidebar để highlight
+        const items = document.querySelectorAll('.class-item');
+        items.forEach(i => i.classList.remove('active'));
+        // (Cách đơn giản để highlight không cần render lại)
     }
 
-    // --- 2. QUẢN LÝ BÀI TẬP ---
+    // Đăng bài
+    window.addAssignment = () => {
+        if(!curClass) return alert("Chọn lớp trước!");
+        const t = document.getElementById('a-title').value;
+        const c = document.getElementById('a-content').value;
+        const k = document.getElementById('a-key').value; // Lấy đáp án
 
-    window.addAssignment = function() {
-        if(!currentClassId) return alert("Vui lòng chọn lớp trước!");
-        
-        const title = document.getElementById('a-title').value;
-        const content = document.getElementById('a-content').value;
-        const type = document.getElementById('a-type').value; // theory hoặc exercise
-
-        if(title && content) {
-            push(ref(db, `assignments/${currentClassId}`), {
-                title: title,
-                content: content,
-                type: type,
-                timestamp: Date.now()
+        if(t && c) {
+            push(ref(db, `assignments/${curClass}`), {
+                title: t, content: c, correctAnswer: k, timestamp: Date.now()
             });
-            alert("Đã đăng bài thành công!");
-            // Reset form
-            document.getElementById('a-title').value = "";
-            document.getElementById('a-content').value = "";
-        } else {
-            alert("Vui lòng nhập đủ thông tin!");
-        }
+            alert("Đã đăng!");
+            document.getElementById('a-title').value="";
+            document.getElementById('a-content').value="";
+            document.getElementById('a-key').value="";
+        } else alert("Thiếu thông tin!");
     }
 
-    window.deleteAssignment = function(id) {
-        if(confirm("Xóa bài này?")) {
-            remove(ref(db, `assignments/${currentClassId}/${id}`));
-        }
-    }
+    window.delAss = (id) => { if(confirm("Xóa bài này?")) remove(ref(db, `assignments/${curClass}/${id}`)); }
 
-    function loadAssignments(classId) {
-        const listDiv = document.getElementById('assignment-list');
-        listDiv.innerHTML = "<div class='loading'>Đang tải dữ liệu...</div>";
-        
-        onValue(ref(db, `assignments/${classId}`), (snap) => {
-            listDiv.innerHTML = "";
-            const data = snap.val();
-
-            if(!data) {
-                listDiv.innerHTML = "<p style='text-align:center; color:#999'>Lớp này chưa có bài nào.</p>";
-                return;
-            }
-
-            Object.keys(data).reverse().forEach(key => {
-                const item = data[key];
-                const typeClass = item.type === 'theory' ? 'theory' : 'exercise';
-                const badgeClass = item.type === 'theory' ? 'bg-theory' : 'bg-exercise';
-                const typeName = item.type === 'theory' ? 'Lý thuyết' : 'Bài tập';
-
-                listDiv.innerHTML += `
-                    <div class="assignment-card ${typeClass}">
-                        <div class="card-actions">
-                            <button onclick="deleteAssignment('${key}')" style="background:none; border:none; color:#c0392b; cursor:pointer;"><i class="fas fa-trash"></i> Xóa</button>
-                        </div>
-                        <span class="badge ${badgeClass}">${typeName}</span>
-                        <h3 style="margin: 5px 0;">${item.title}</h3>
-                        <div class="english-content">${item.content}</div>
-                    </div>
-                `;
+    function loadAss(cid) {
+        onValue(ref(db, `assignments/${cid}`), snap => {
+            const list = document.getElementById('list');
+            list.innerHTML = "";
+            const d = snap.val();
+            if(!d) return list.innerHTML = "<p>Chưa có bài tập.</p>";
+            
+            Object.keys(d).reverse().forEach(k => {
+                const i = d[k];
+                const keyHtml = i.correctAnswer ? `<div class="key-box"><b>Đáp án hệ thống:</b> ${i.correctAnswer}</div>` : '';
+                list.innerHTML += `
+                    <div class="assignment-card">
+                        <button onclick="delAss('${k}')" style="float:right; border:none; color:red; cursor:pointer;">Xóa</button>
+                        <h3>${i.title}</h3>
+                        <div style="white-space:pre-wrap; background:#f9f9f9; padding:10px;">${i.content}</div>
+                        ${keyHtml}
+                    </div>`;
             });
         });
     }

@@ -3,123 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Học Sinh Làm Bài</title>
+    <title>Học Sinh - Làm Bài</title>
     <style>
-        body { font-family: sans-serif; background: #e0f7fa; padding: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #e0f7fa; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         select { width: 100%; padding: 15px; font-size: 1.1em; margin-bottom: 20px; border: 2px solid #009688; border-radius: 5px; }
+        .post { border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; background: #fff; border-radius: 8px; }
+        .content { white-space: pre-wrap; font-family: 'Courier New', monospace; background: #fafafa; padding: 15px; border: 1px dashed #aaa; margin: 10px 0; }
+        input, textarea, button { width: 100%; margin-top: 5px; padding: 12px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { background: #009688; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        button:hover { background: #00796b; }
         
-        .post { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; background: #fff; border-radius: 5px; }
-        .english-content { white-space: pre-wrap; font-family: 'Courier New', monospace; background: #fafafa; padding: 10px; border: 1px dashed #aaa; margin: 10px 0; }
-        
-        input, textarea { width: 100%; margin-top: 5px; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; }
-        button { background: #009688; color: white; border: none; padding: 10px 20px; cursor: pointer; margin-top: 10px; width: 100%; }
-        h2 { color: #00796b; text-align: center; }
+        /* Kết quả chấm điểm */
+        .result-box { margin-top: 15px; padding: 15px; background: #e8f5e9; border: 1px solid #4caf50; border-radius: 5px; display: none; }
+        .score { font-size: 1.2em; font-weight: bold; color: #2e7d32; }
+        .correct-key { color: #c0392b; font-weight: bold; margin-top: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>👨‍🎓 KHU VỰC HỌC SINH</h2>
-    
-    <label><b>Chọn lớp của em:</b></label>
-    <select id="class-select" onchange="loadClassAssignments()">
-        <option value="">-- Vui lòng chọn lớp --</option>
-    </select>
-
-    <div id="assignment-area">
-        <p style="text-align:center; color: #666;">Chọn lớp ở trên để xem bài tập nhé!</p>
-    </div>
+    <h2 style="text-align:center; color:#00796b;">👨‍🎓 KHU VỰC HỌC SINH</h2>
+    <select id="class-select" onchange="loadAss()"><option value="">-- Đang tải danh sách lớp... --</option></select>
+    <div id="ass-area"><p style="text-align:center">Vui lòng chọn lớp.</p></div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-    // --- DÁN CONFIG GIỐNG HỆT FILE GIÁO VIÊN ---
+    // --- CẤU HÌNH ---
     const firebaseConfig = {
-        apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE",
-        authDomain: "lophoconl.firebaseapp.com",
-        databaseURL: "https://lophoconl-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "lophoconl",
-        storageBucket: "lophoconl.firebasestorage.app",
-        messagingSenderId: "1051247561864",
-        appId: "1:1051247561864:web:43886eee9886cafd59a33d"
+      apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE",
+      authDomain: "lophoconl.firebaseapp.com",
+      databaseURL: "https://lophoconl-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "lophoconl",
+      storageBucket: "lophoconl.firebasestorage.app",
+      messagingSenderId: "1051247561864",
+      appId: "1:1051247561864:web:43886eee9886cafd59a33d"
     };
-    // -------------------------------------------
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // 1. Load danh sách lớp vào thẻ Select
-    onValue(ref(db, 'classes'), (snap) => {
-        const select = document.getElementById('class-select');
-        const data = snap.val();
-        // Giữ option đầu tiên
-        select.innerHTML = '<option value="">-- Vui lòng chọn lớp --</option>'; 
-        
-        if(data) {
-            Object.keys(data).forEach(key => {
-                select.innerHTML += `<option value="${key}">${data[key].name}</option>`;
-            });
-        }
+    // Load Lớp
+    onValue(ref(db, 'classes'), snap => {
+        const sel = document.getElementById('class-select');
+        sel.innerHTML = '<option value="">-- Chọn lớp của em --</option>';
+        const d = snap.val();
+        if(d) Object.keys(d).forEach(k => sel.innerHTML += `<option value="${k}">${d[k].name}</option>`);
     });
 
-    // 2. Hàm load bài tập khi chọn lớp
-    window.loadClassAssignments = function() {
-        const classId = document.getElementById('class-select').value;
-        const area = document.getElementById('assignment-area');
+    // Load Bài tập
+    window.loadAss = () => {
+        const cid = document.getElementById('class-select').value;
+        const area = document.getElementById('ass-area');
+        if(!cid) return area.innerHTML = "";
         
-        if(!classId) {
-            area.innerHTML = "<p style='text-align:center'>Chọn lớp ở trên để xem bài tập nhé!</p>";
-            return;
-        }
-
         area.innerHTML = "<i>Đang tải bài tập...</i>";
-
-        onValue(ref(db, `assignments/${classId}`), (snap) => {
+        
+        onValue(ref(db, `assignments/${cid}`), snap => {
             area.innerHTML = "";
-            const data = snap.val();
-            
-            if(!data) {
-                area.innerHTML = "<p>Thầy cô chưa giao bài tập nào cho lớp này.</p>";
-                return;
-            }
+            const d = snap.val();
+            if(!d) return area.innerHTML = "<p>Lớp này chưa có bài tập nào.</p>";
 
-            Object.keys(data).reverse().forEach(key => {
-                const q = data[key];
+            Object.keys(d).reverse().forEach(k => {
+                const q = d[k];
+                // Lưu đáp án đúng vào thuộc tính data-key để dùng sau (nếu có)
+                const keyAttr = q.correctAnswer ? `data-key="${q.correctAnswer}"` : "";
+                
                 area.innerHTML += `
-                    <div class="post">
+                    <div class="post" id="post-${k}">
                         <h3>${q.title}</h3>
-                        <div class="english-content">${q.content}</div>
+                        <div class="content">${q.content}</div>
                         <hr>
-                        <b>Nộp bài làm:</b>
-                        <input type="text" id="n-${key}" placeholder="Tên của em (VD: Nguyễn Văn A)">
-                        <textarea id="a-${key}" rows="3" placeholder="Nhập câu trả lời của em..."></textarea>
-                        <button onclick="submitAnswer('${classId}', '${key}')">NỘP BÀI</button>
-                    </div>
-                `;
+                        <input type="text" id="name-${k}" placeholder="Nhập họ và tên của em...">
+                        <textarea id="ans-${k}" rows="3" placeholder="Nhập câu trả lời (VD: 1A 2B 3C...)"></textarea>
+                        
+                        <button onclick="submit('${cid}', '${k}')" ${keyAttr}>NỘP BÀI</button>
+                        
+                        <div id="res-${k}" class="result-box"></div>
+                    </div>`;
             });
         });
     }
 
-    // 3. Nộp bài
-    window.submitAnswer = function(classId, assignmentId) {
-        const name = document.getElementById(`n-${assignmentId}`).value;
-        const ans = document.getElementById(`a-${assignmentId}`).value;
+    // Nộp bài & Chấm điểm
+    window.submit = (cid, aid) => {
+        const name = document.getElementById(`name-${aid}`).value;
+        const ans = document.getElementById(`ans-${aid}`).value;
+        // Lấy đáp án đúng từ nút bấm (đã lưu lúc tải trang)
+        const btn = document.querySelector(`#post-${aid} button`);
+        const correctKey = btn.getAttribute('data-key'); 
 
-        if(name && ans) {
-            // Lưu bài làm vào: answers -> classId -> assignmentId -> danh sách bài nộp
-            push(ref(db, `answers/${classId}/${assignmentId}`), {
-                name: name,
-                answer: ans,
-                timestamp: Date.now()
+        if(!name || !ans) return alert("Em chưa điền tên hoặc câu trả lời!");
+
+        // 1. Lưu bài làm lên Firebase
+        push(ref(db, `answers/${cid}/${aid}`), {
+            name: name, answer: ans, timestamp: Date.now()
+        });
+
+        // 2. Logic Chấm điểm (So sánh chuỗi)
+        let msg = "Đã nộp bài thành công!";
+        if(correctKey) {
+            // Tách chuỗi thành mảng các từ (VD: "1A 2B" -> ["1A", "2B"])
+            // Dùng Regex để tách bỏ dấu chấm, phẩy, khoảng trắng thừa
+            const studentTokens = ans.match(/[a-zA-Z0-9]+/g) || [];
+            const keyTokens = correctKey.match(/[a-zA-Z0-9]+/g) || [];
+            
+            let matchCount = 0;
+            // So sánh đơn giản: đếm xem có bao nhiêu token của HS trùng với đáp án
+            // (Chuyển về chữ hoa để so sánh không phân biệt hoa thường)
+            studentTokens.forEach(token => {
+                if(keyTokens.map(k => k.toUpperCase()).includes(token.toUpperCase())) {
+                    matchCount++;
+                }
             });
-            alert("Đã nộp bài thành công!");
-            document.getElementById(`a-${assignmentId}`).value = ""; // Xóa nội dung để tránh nộp đúp
-        } else {
-            alert("Em nhớ điền tên và câu trả lời nhé!");
+
+            // Tính phần trăm (Tương đối)
+            const total = keyTokens.length;
+            const percent = total > 0 ? Math.round((matchCount / total) * 100) : 0;
+            
+            // Hiển thị kết quả
+            const resBox = document.getElementById(`res-${aid}`);
+            resBox.style.display = "block";
+            resBox.innerHTML = `
+                <div class="score">Kết quả tự động: Trùng khớp khoảng ${matchCount}/${total} câu (${percent}%)</div>
+                <div class="correct-key">Đáp án đúng của thầy cô: ${correctKey}</div>
+                <div><i>(Em hãy đối chiếu lại bài làm của mình với đáp án trên nhé!)</i></div>
+            `;
+            
+            msg = "Đã nộp bài! Em xem kết quả chấm ở bên dưới nhé.";
         }
+        
+        alert(msg);
     }
 </script>
 </body>
