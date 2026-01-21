@@ -3,85 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giáo Viên - Quản Lý Điểm Số</title>
+    <title>Giáo Viên - AI Powered 🤖</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; margin: 0; background: #f0f2f5; }
         .sidebar { width: 280px; background: #2c3e50; color: white; display: flex; flex-direction: column; }
-        .sidebar-header { padding: 20px; background: #1a252f; border-bottom: 1px solid #34495e; }
         .class-item { padding: 12px; margin: 5px; background: #34495e; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between; color: white;}
         .class-item:hover, .class-item.active { background: #16a085; }
         
         .main-content { flex: 1; padding: 30px; overflow-y: auto; background: #ecf0f1; }
-        .editor-box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 1000px; margin: 0 auto 30px auto; }
+        .editor-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 1000px; margin: 0 auto 30px auto; }
         
+        /* AI BUTTON STYLES */
+        .ai-section { background: #e8f5e9; padding: 20px; border-radius: 8px; border: 1px dashed #4caf50; margin-bottom: 20px; text-align: center; }
+        .btn-ai { background: linear-gradient(45deg, #11998e, #38ef7d); color: white; padding: 12px 25px; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 1em; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4); transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(56, 239, 125, 0.6); }
+        .btn-ai:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; transform: none; }
+        #ai-status { margin-top: 10px; font-style: italic; color: #555; }
+        
+        /* Input & Editor */
         input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         .btn-primary { background: #2980b9; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
+        #editor-container { height: 300px; background: white; font-family: 'Times New Roman', serif; font-size: 14pt; }
         
-        /* QUILL EDITOR */
-        #editor-container { height: 250px; background: white; font-family: 'Times New Roman', serif; font-size: 14pt; }
-        
-        /* KEY BUILDER */
+        /* Key Builder */
         .key-builder-area { border: 2px dashed #bdc3c7; padding: 15px; border-radius: 5px; background: #fdfefe; margin-top: 10px; max-height: 400px; overflow-y: auto; }
         .key-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; background: white; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px; }
         .key-num { width: 40px; font-weight: bold; text-align: center; color: #2980b9; background: #eaf2f8; padding: 8px 0; border-radius: 4px; }
         .btn-del-row { background: #ffcdd2; color: #c62828; border: none; padding: 0 15px; height: 40px; cursor: pointer; border-radius: 4px; }
-        .btn-add-row { background: #27ae60; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-weight: bold; margin-right: 5px; }
+        .btn-add-row { background: #27ae60; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; margin-right: 5px; }
         
-        /* CARD HIỂN THỊ BÀI TẬP */
-        .assignment-card { background: white; padding: 40px; margin-bottom: 30px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 1000px; margin: 0 auto 30px auto; position: relative; }
-        .content-view { font-family: 'Times New Roman', serif; font-size: 14pt; line-height: 1.6; color: #000; border:none; padding:0; }
-        
-        /* BẢNG ĐIỂM CHI TIẾT */
-        .submission-area { margin-top: 20px; border-top: 2px solid #eee; padding-top: 20px; display: none; background: #fafafa; padding: 15px; border-radius: 5px; }
-        .student-row { display: flex; justify-content: space-between; align-items: center; background: white; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; }
-        .student-row:hover { background: #e3f2fd; }
-        
-        .score-badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.9em; color: white; }
-        .high { background: #27ae60; } .med { background: #f39c12; } .low { background: #c0392b; }
-
-        .detail-view { display: none; padding: 10px; background: #fffde7; border-left: 3px solid #fbc02d; margin-bottom: 10px; font-family: monospace; font-size: 0.95em; }
-        
-        .toggle-btn { background: #34495e; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 0.9em; margin-top: 10px; }
+        /* List View */
+        .assignment-card { background: white; padding: 30px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 1000px; margin: 0 auto 20px auto; position: relative; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <div class="sidebar-header"><h3><i class="fas fa-chalkboard-teacher"></i> Giáo Viên</h3></div>
+    <div style="padding:20px; background:#1a252f; color:white; border-bottom:1px solid #34495e;"><h3><i class="fas fa-chalkboard-teacher"></i> Giáo Viên</h3></div>
     <div id="class-list" style="padding:10px;"></div>
     <button onclick="addClass()" style="width:100%; padding:15px; background:#e67e22; border:none; color:white; font-weight:bold; cursor:pointer;">+ Thêm Lớp</button>
 </div>
 
 <div class="main-content">
-    <div id="welcome" style="text-align:center; margin-top:100px; color:#7f8c8d;">
-        <h2>Chào thầy/cô! Vui lòng chọn lớp.</h2>
-    </div>
+    <div id="welcome" style="text-align:center; margin-top:100px; color:#7f8c8d;"><h2>Chọn lớp để bắt đầu</h2></div>
 
     <div id="manager" class="hidden">
         <h2 id="class-name" style="color:#2c3e50;"></h2>
         
         <div class="editor-box">
-            <h3 style="margin-top:0; color:#2980b9;">📝 Soạn Bài Tập Mới</h3>
+            <h3 style="margin-top:0; color:#2980b9;">📝 Soạn Bài Tập</h3>
+            
+            <div class="ai-section">
+                <input type="file" id="ai-image-input" accept="image/*" style="display:none" onchange="processImage()">
+                <button class="btn-ai" onclick="document.getElementById('ai-image-input').click()">
+                    <i class="fas fa-magic"></i> AI Tự Động Soạn Đề Từ Ảnh
+                </button>
+                <div id="ai-status"></div>
+                <small style="display:block; margin-top:5px; color:#777">Hỗ trợ: Ảnh chụp đề thi, File ảnh Word/PDF...</small>
+            </div>
+
             <input type="text" id="a-title" placeholder="Tiêu đề bài tập">
-            <div id="editor-container"></div> <div style="margin-top: 20px;">
-                <label><b>Cấu hình đáp án:</b></label><br>
+            
+            <div id="editor-container"></div>
+            
+            <div style="margin-top: 20px;">
+                <label><b>Cấu hình đáp án (AI sẽ tự điền vào đây):</b></label><br>
                 <div style="margin-top:5px; margin-bottom:10px;">
-                    <button class="btn-add-row" onclick="addKeyRow()"><i class="fas fa-plus"></i> Thêm câu</button>
-                    <button class="btn-add-row" style="background:#3498db" onclick="addBulk(5)">+ 5 câu</button>
-                    <button class="btn-add-row" style="background:#95a5a6" onclick="resetKey()">Reset</button>
+                    <button class="btn-add-row" onclick="addKeyRow()"><i class="fas fa-plus"></i> Thêm</button>
+                    <button class="btn-add-row" style="background:#95a5a6" onclick="resetKey()">Xóa hết</button>
                 </div>
                 <div id="key-container" class="key-builder-area">
                     <div style="text-align:center; color:#999; padding:40px;">Chưa có câu hỏi.</div>
                 </div>
             </div>
-            <button class="btn-primary" onclick="addAssignment()">ĐĂNG BÀI</button>
+
+            <button class="btn-primary" onclick="addAssignment()">ĐĂNG BÀI TẬP</button>
         </div>
 
-        <h3>📚 Danh sách bài tập & Kết quả:</h3>
+        <h3>📚 Danh sách bài tập:</h3>
         <div id="list">Loading...</div>
     </div>
 </div>
@@ -90,8 +92,12 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    
+    // --- 1. CẤU HÌNH GOOGLE GEMINI AI ---
+    // HÃY THAY MÃ API KEY CỦA BẠN VÀO DƯỚI ĐÂY
+    const GEMINI_API_KEY = "AIzaSyBnPcozSFz4XMVr0rFi5mUQSjCzLnyI4f0"; 
 
-    // --- CONFIG FIREBASE ---
+    // --- CẤU HÌNH FIREBASE ---
     const firebaseConfig = {
       apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE",
       authDomain: "lophoconl.firebaseapp.com",
@@ -107,190 +113,175 @@
     let curClass = null;
     let questionCount = 0;
 
-    // --- QUILL EDITOR ---
+    // Init Quill
     var quill = new Quill('#editor-container', {
         theme: 'snow',
-        placeholder: 'Copy nội dung từ Word dán vào đây...',
-        modules: {
-            toolbar: [
-                ['bold', 'italic', 'underline'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                [{ 'color': [] }, { 'background': [] }],
-                ['clean']
-            ]
-        }
+        modules: { toolbar: [['bold', 'italic', 'underline'], [{'list':'ordered'},{'list':'bullet'}], [{'color':[]},{'background':[]}], ['clean']] }
     });
 
-    // --- KEY BUILDER ---
-    window.addKeyRow = () => {
+    // --- LOGIC XỬ LÝ AI ---
+    window.processImage = async () => {
+        const fileInput = document.getElementById('ai-image-input');
+        const file = fileInput.files[0];
+        if(!file) return;
+
+        const status = document.getElementById('ai-status');
+        status.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang gửi ảnh cho Google AI phân tích... (Đợi khoảng 5-10s)`;
+        
+        // 1. Chuyển ảnh sang Base64
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = async function() {
+            const base64String = reader.result.split(',')[1]; // Bỏ header data:image...
+
+            // 2. Gọi Gemini API
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            
+            const promptText = `
+                Bạn là trợ lý soạn đề thi. Hãy nhìn ảnh này và trích xuất nội dung đề thi.
+                YÊU CẦU OUTPUT: Trả về duy nhất 1 JSON Object (không markdown) có cấu trúc sau:
+                {
+                    "html": "Nội dung đề bài dưới dạng HTML (giữ nguyên định dạng đoạn văn, dùng thẻ <p>, <b>, <br>... nhưng KHÔNG bao gồm các câu hỏi trắc nghiệm A,B,C,D ở phần này, chỉ lấy văn bản đề bài hoặc câu hỏi chính)",
+                    "questions": {
+                        "1": { "type": "mcq", "ans": "A" },
+                        "2": { "type": "fill", "ans": "example word" },
+                        "3": { "type": "essay", "ans": "example sentence" }
+                    }
+                }
+                Lưu ý: 
+                - Nếu thấy trắc nghiệm (A,B,C,D), type là "mcq".
+                - Nếu thấy điền từ, type là "fill".
+                - Nếu ảnh có khoanh tròn hoặc tô đậm đáp án, hãy cố gắng suy luận đưa vào trường "ans". Nếu không biết thì để trống.
+                - Số thứ tự câu hỏi trong "questions" phải khớp với ảnh.
+            `;
+
+            const payload = {
+                contents: [{
+                    parts: [
+                        { text: promptText },
+                        { inline_data: { mime_type: file.type, data: base64String } }
+                    ]
+                }]
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                
+                // 3. Xử lý kết quả trả về
+                const textResponse = data.candidates[0].content.parts[0].text;
+                // Làm sạch JSON (đôi khi AI thêm ```json ở đầu)
+                const cleanJson = textResponse.replace(/```json|```/g, '').trim();
+                const result = JSON.parse(cleanJson);
+
+                // 4. Điền vào giao diện
+                quill.root.innerHTML = result.html; // Điền đề bài
+                
+                // Điền đáp án
+                resetKey();
+                Object.keys(result.questions).sort((a,b)=>a-b).forEach(num => {
+                    const q = result.questions[num];
+                    addKeyRowWithData(num, q.type, q.ans);
+                });
+
+                status.innerHTML = `<span style="color:green"><i class="fas fa-check"></i> Đã xử lý xong! Hãy kiểm tra lại.</span>`;
+            } catch (error) {
+                console.error(error);
+                status.innerHTML = `<span style="color:red">Lỗi: Không thể phân tích ảnh. Hãy thử ảnh rõ nét hơn.</span>`;
+            }
+        };
+    }
+
+    // --- KEY BUILDER UTILS ---
+    window.addKeyRowWithData = (num, type, ans) => {
         const c = document.getElementById('key-container');
         if(c.innerText.includes('Chưa có câu hỏi')) c.innerHTML = "";
-        questionCount++;
-        const id = `row-${questionCount}`;
-        c.insertAdjacentHTML('beforeend', `
+        
+        // Cập nhật biến đếm nếu cần
+        if(parseInt(num) > questionCount) questionCount = parseInt(num);
+        
+        const id = `row-${num}`;
+        
+        // Tạo HTML cho dòng
+        let inputHtml = "";
+        if(type === 'mcq') {
+            inputHtml = `<select class="ans-input" style="width:100%"><option value="A" ${ans=='A'?'selected':''}>A</option><option value="B" ${ans=='B'?'selected':''}>B</option><option value="C" ${ans=='C'?'selected':''}>C</option><option value="D" ${ans=='D'?'selected':''}>D</option></select>`;
+        } else {
+            inputHtml = `<input type="text" class="ans-input" value="${ans || ''}" placeholder="Đáp án...">`;
+        }
+
+        const html = `
             <div class="key-row" id="${id}">
-                <div class="key-num">#${questionCount}</div>
+                <div class="key-num">#${num}</div>
                 <select class="key-type" onchange="changeType('${id}')" style="width:150px">
-                    <option value="mcq">Trắc nghiệm</option>
-                    <option value="fill">Điền từ</option>
-                    <option value="essay">Tự luận</option>
+                    <option value="mcq" ${type=='mcq'?'selected':''}>Trắc nghiệm</option>
+                    <option value="fill" ${type=='fill'?'selected':''}>Điền từ</option>
+                    <option value="essay" ${type=='essay'?'selected':''}>Tự luận</option>
                 </select>
-                <div class="key-val" id="val-${id}" style="flex:1">
-                    <select class="ans-input" style="width:100%"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
-                </div>
+                <div class="key-val" id="val-${id}" style="flex:1">${inputHtml}</div>
                 <button class="btn-del-row" onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i></button>
-            </div>`);
-        c.scrollTop = c.scrollHeight;
+            </div>`;
+        
+        c.insertAdjacentHTML('beforeend', html);
     }
-    window.addBulk = (n) => { for(let i=0; i<n; i++) addKeyRow(); }
+    
+    // --- CÁC HÀM CŨ GIỮ NGUYÊN ---
+    window.addKeyRow = () => { questionCount++; addKeyRowWithData(questionCount, 'mcq', 'A'); }
     window.resetKey = () => { document.getElementById('key-container').innerHTML = "<div style='text-align:center;color:#999;padding:40px;'>Chưa có câu hỏi.</div>"; questionCount = 0; }
     window.changeType = (id) => {
         const type = document.querySelector(`#${id} .key-type`).value;
         const div = document.getElementById(`val-${id}`);
         if(type==='mcq') div.innerHTML = `<select class="ans-input" style="width:100%"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>`;
-        else if(type==='fill') div.innerHTML = `<input type="text" class="ans-input" placeholder="Đáp án đúng...">`;
-        else div.innerHTML = `<input type="text" class="ans-input" placeholder="Gợi ý chấm...">`;
+        else div.innerHTML = `<input type="text" class="ans-input" placeholder="Đáp án đúng...">`;
     }
 
-    // --- LOGIC LỚP & BÀI TẬP ---
     window.addClass = () => { const n = prompt("Tên lớp:"); if(n) push(ref(db, 'classes'), {name: n}); }
-    
     onValue(ref(db, 'classes'), snap => {
         const list = document.getElementById('class-list');
         list.innerHTML = "";
         const d = snap.val();
         if(d) Object.keys(d).forEach(k => list.innerHTML += `<div class="class-item" onclick="selClass('${k}', '${d[k].name}')"><span>${d[k].name}</span> <i class="fas fa-trash" onclick="delClass(event,'${k}')"></i></div>`);
     });
-
-    window.selClass = (k, n) => {
-        curClass = k;
-        document.getElementById('welcome').classList.add('hidden');
-        document.getElementById('manager').classList.remove('hidden');
-        document.getElementById('class-name').innerText = n;
-        loadAss(k);
-    }
+    window.selClass = (k, n) => { curClass = k; document.getElementById('welcome').classList.add('hidden'); document.getElementById('manager').classList.remove('hidden'); document.getElementById('class-name').innerText = n; loadAss(k); }
     window.delClass = (e, k) => { e.stopPropagation(); if(confirm("Xóa lớp?")) remove(ref(db, `classes/${k}`)); }
-
+    
     window.addAssignment = () => {
         if(!curClass) return alert("Chọn lớp trước!");
         const title = document.getElementById('a-title').value;
         const content = quill.root.innerHTML;
         const rows = document.querySelectorAll('.key-row');
         const keyMap = {};
-        let idx = 1;
+        
         rows.forEach(r => {
+            const numText = r.querySelector('.key-num').innerText.replace('#', ''); // Lấy số câu chính xác từ UI
             const t = r.querySelector('.key-type').value;
             const a = r.querySelector('.ans-input').value.trim();
-            if(a) { keyMap[idx] = {type: t, ans: a}; idx++; }
+            if(a) keyMap[numText] = {type: t, ans: a};
         });
 
         if(title && Object.keys(keyMap).length > 0) {
-            push(ref(db, `assignments/${curClass}`), {
-                title: title, content: content, correctAnswer: JSON.stringify(keyMap), timestamp: Date.now()
-            });
+            push(ref(db, `assignments/${curClass}`), { title: title, content: content, correctAnswer: JSON.stringify(keyMap), timestamp: Date.now() });
             alert("Đã đăng bài!");
-            document.getElementById('a-title').value="";
-            quill.setContents([]);
-            resetKey();
+            document.getElementById('a-title').value=""; quill.setContents([]); resetKey();
         } else alert("Thiếu thông tin!");
     }
-
     window.delAss = (id) => { if(confirm("Xóa bài này?")) remove(ref(db, `assignments/${curClass}/${id}`)); }
-
-    // --- HIỂN THỊ DANH SÁCH BÀI & KẾT QUẢ ---
+    
     function loadAss(cid) {
         onValue(ref(db, `assignments/${cid}`), snap => {
             const list = document.getElementById('list');
             list.innerHTML = "";
             const d = snap.val();
             if(!d) return list.innerHTML = "<p>Chưa có bài.</p>";
-            
             Object.keys(d).reverse().forEach(aid => {
                 const i = d[aid];
-                let keyMap = {};
-                try { keyMap = JSON.parse(i.correctAnswer); } catch(e){}
-
-                list.innerHTML += `
-                    <div class="assignment-card">
-                        <button onclick="delAss('${aid}')" style="float:right; color:red; border:none; background:none; cursor:pointer;">Xóa</button>
-                        <h3 style="border-bottom:1px solid #eee; padding-bottom:10px;">${i.title}</h3>
-                        <div class="content-view ql-editor">${i.content}</div>
-                        
-                        <button class="toggle-btn" onclick="toggleSubs('${aid}')"><i class="fas fa-list"></i> Xem Bài Nộp Của HS</button>
-                        
-                        <div id="subs-${aid}" class="submission-area">
-                            <div style="text-align:center"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>
-                        </div>
-                    </div>`;
-                
-                // Load Submissions
-                loadSubs(cid, aid, keyMap);
+                list.innerHTML += `<div class="assignment-card"><button onclick="delAss('${aid}')" style="float:right;color:red;border:none;background:none;cursor:pointer">Xóa</button><h3>${i.title}</h3><div style="color:green"><i class="fas fa-check-circle"></i> Đã tạo đề thành công</div></div>`;
             });
         });
-    }
-
-    function loadSubs(cid, aid, keyMap) {
-        onValue(ref(db, `answers/${cid}/${aid}`), snap => {
-            const div = document.getElementById(`subs-${aid}`);
-            if(!div) return;
-            div.innerHTML = "";
-            const d = snap.val();
-            if(!d) {
-                div.innerHTML = "<p style='color:#777; font-style:italic'>Chưa có học sinh nào nộp bài.</p>";
-                return;
-            }
-
-            Object.keys(d).reverse().forEach(subId => {
-                const s = d[subId];
-                // Tính màu điểm
-                let badge = "low";
-                if(s.percent >= 80) badge = "high";
-                else if(s.percent >= 50) badge = "med";
-                
-                // Tạo bảng chi tiết
-                let detailRows = "";
-                // Parse chuỗi kết quả: "1. A | 2. B |"
-                const rawArr = s.answer.split('|').map(x=>x.trim()).filter(x=>x);
-                rawArr.forEach(item => {
-                    // item dạng: "1. A"
-                    // Cần tách số câu và đáp án
-                    const match = item.match(/^(\d+)\.\s*(.*)$/);
-                    if(match) {
-                        const num = match[1];
-                        const ans = match[2];
-                        const keyInfo = keyMap[num] || {ans: '?', type: '?'};
-                        
-                        const isCorrect = (ans.toLowerCase() === keyInfo.ans.toLowerCase());
-                        const color = isCorrect ? 'green' : 'red';
-                        const icon = isCorrect ? '✔' : '✖';
-                        
-                        if(keyInfo.type === 'essay') {
-                             detailRows += `<div><b>Câu ${num}:</b> ${ans} <br><small style="color:blue">Gợi ý: ${keyInfo.ans}</small></div>`;
-                        } else {
-                             detailRows += `<div style="color:${color}"><b>Câu ${num}:</b> ${ans} ${icon} (Gốc: ${keyInfo.ans})</div>`;
-                        }
-                    }
-                });
-
-                const html = `
-                    <div class="student-row" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display==='block'?'none':'block'">
-                        <span style="font-weight:bold"><i class="fas fa-user-graduate"></i> ${s.name}</span>
-                        <span class="score-badge ${badge}">${s.score} (${s.percent}%)</span>
-                    </div>
-                    <div class="detail-view">
-                        ${detailRows || "Không đọc được chi tiết bài làm."}
-                        <div style="margin-top:5px; font-size:0.8em; color:#999; text-align:right">Nộp lúc: ${new Date(s.timestamp).toLocaleString()}</div>
-                    </div>
-                `;
-                div.innerHTML += html;
-            });
-        });
-    }
-    
-    // Global functions
-    window.toggleSubs = (id) => {
-        const el = document.getElementById(`subs-${id}`);
-        el.style.display = el.style.display==='block'?'none':'block';
     }
 </script>
 </body>
