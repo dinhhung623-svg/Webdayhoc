@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giáo Viên - Gemini AI Custom 🛠️</title>
+    <title>Giáo Viên - AI OCR & Solver 🚀</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
@@ -15,33 +15,32 @@
         .main-content { flex: 1; padding: 30px; overflow-y: auto; background: #ecf0f1; }
         .editor-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 1000px; margin: 0 auto 30px auto; }
         
-        /* GEMINI STYLE */
+        /* AI STYLE */
         .ai-section { 
-            background: linear-gradient(135deg, #FFF0F5 0%, #E6E6FA 100%); 
-            padding: 20px; border-radius: 12px; border: 1px solid #D8BFD8; 
+            background: linear-gradient(135deg, #fff3e0 0%, #fff8e1 100%); 
+            padding: 20px; border-radius: 12px; border: 1px solid #ffe0b2; 
             margin-bottom: 25px; text-align: center; position: relative;
         }
         
         .ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap:10px;}
         
-        /* Ô nhập Model */
-        .model-input-group { display: flex; align-items: center; gap: 5px; background: white; padding: 5px 10px; border-radius: 20px; border: 1px solid #ccc; }
-        .model-input-group input { border: none; outline: none; font-weight: bold; color: #4a148c; width: 180px; }
+        .model-input-group { display: flex; align-items: center; gap: 5px; background: white; padding: 5px 10px; border-radius: 20px; border: 1px solid #ffcc80; }
+        .model-input-group input { border: none; outline: none; font-weight: bold; color: #e65100; width: 180px; }
         .model-input-group label { font-size: 0.8em; color: #666; }
 
         .btn-setting { background: white; border: 1px solid #999; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.9em; }
 
         .btn-ai { 
-            background: linear-gradient(45deg, #8e2de2, #4a00e0); color: white; 
+            background: linear-gradient(45deg, #ff9800, #f57c00); color: white; 
             padding: 12px 35px; border: none; border-radius: 50px; 
             cursor: pointer; font-weight: bold; font-size: 1.1em; 
-            box-shadow: 0 5px 15px rgba(74, 0, 224, 0.3); transition: 0.3s; 
+            box-shadow: 0 5px 15px rgba(245, 124, 0, 0.3); transition: 0.3s; 
             display: inline-flex; align-items: center; gap: 10px; 
         }
-        .btn-ai:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(74, 0, 224, 0.5); }
+        .btn-ai:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(245, 124, 0, 0.5); }
         .btn-ai.loading { background: #ccc; cursor: wait; transform: none; box-shadow: none; }
         
-        #ai-status { margin-top: 15px; font-weight: 500; min-height: 25px; color: #4a148c; word-break: break-word;}
+        #ai-status { margin-top: 15px; font-weight: 500; min-height: 25px; color: #e65100; word-break: break-word;}
 
         input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         .btn-primary { background: #2c3e50; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
@@ -52,7 +51,7 @@
         .key-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; background: white; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px; }
         .key-num { width: 40px; font-weight: bold; text-align: center; color: #fff; background: #34495e; padding: 8px 0; border-radius: 4px; }
         .btn-del-row { background: #ffcdd2; color: #c62828; border: none; padding: 0 15px; height: 40px; cursor: pointer; border-radius: 4px; }
-        .ans-input { border: 2px solid #9c27b0 !important; background: #f3e5f5; font-weight: 500; }
+        .ans-input { border: 2px solid #ff9800 !important; background: #fff3e0; font-weight: 500; }
         .assignment-card { background: white; padding: 30px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 1000px; margin: 0 auto 20px auto; position: relative; }
         .hidden { display: none !important; }
     </style>
@@ -72,20 +71,20 @@
         <h2 id="class-name" style="color:#2c3e50;"></h2>
         
         <div class="editor-box">
-            <h3 style="margin-top:0; color:#6a1b9a;">✨ Soạn Đề Tự Động (Google Gemini)</h3>
+            <h3 style="margin-top:0; color:#ef6c00;">✨ Soạn Đề Tự Động (Fix Lỗi Mất Chữ)</h3>
             
             <div class="ai-section">
                 <div class="ai-header">
                     <div class="model-input-group">
                         <label>Model:</label>
-                        <input type="text" id="gemini-model-name" value="gemini-2.0-flash-exp" title="Nhập tên model bạn muốn dùng (VD: gemini-1.5-flash)">
+                        <input type="text" id="gemini-model-name" value="gemini-2.0-flash-exp" title="Nhập tên model (VD: gemini-1.5-flash)">
                     </div>
                     <button class="btn-setting" onclick="resetApiKey()"><i class="fas fa-key"></i> Đổi Key</button>
                 </div>
                 
                 <input type="file" id="ai-image-input" accept="image/*" style="display:none" onchange="processImage()">
                 <button id="btn-ai-trigger" class="btn-ai" onclick="document.getElementById('ai-image-input').click()">
-                    <i class="fas fa-sparkles"></i> Tải Ảnh & Giải Đề
+                    <i class="fas fa-file-alt"></i> Tải Ảnh & Giải Đề
                 </button>
                 
                 <div id="ai-status">Sẵn sàng. (Dùng Key Google của bạn)</div>
@@ -159,9 +158,7 @@
         let apiKey = checkApiKey();
         if (!apiKey) return alert("Cần có API Key Google!");
 
-        // Lấy tên Model từ ô nhập
         const modelName = document.getElementById('gemini-model-name').value.trim();
-
         const fileInput = document.getElementById('ai-image-input');
         const file = fileInput.files[0];
         if(!file) return;
@@ -171,28 +168,33 @@
         btn.classList.add('loading');
         btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang xử lý...`;
         btn.disabled = true;
-        status.innerHTML = `<span style="color:#6a1b9a">Đang gửi tới <b>${modelName}</b>...</span>`;
+        status.innerHTML = `<span style="color:#ef6c00">Đang đọc & chép lại đề (Model: ${modelName})...</span>`;
         
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = async function() {
             const base64String = reader.result.split(',')[1]; 
-            
-            // Dùng model động do người dùng nhập
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
             
+            // --- CẬP NHẬT CÂU LỆNH MỚI: BẮT BUỘC CHÉP LẠI ĐỀ ---
             const promptText = `
-                Bạn là giáo viên giỏi. Hãy trích xuất đề thi từ ảnh và GIẢI ĐỀ.
-                OUTPUT JSON (duy nhất, không markdown):
+                Nhiệm vụ của bạn là:
+                1. OCR (NHẬN DIỆN VĂN BẢN): Hãy đọc TOÀN BỘ nội dung trong bức ảnh (bao gồm bài đọc, đoạn văn, câu hỏi, và các lựa chọn A,B,C,D). Hãy chép lại y nguyên, trình bày đẹp dưới dạng HTML (dùng thẻ p, b, br). KHÔNG ĐƯỢC BỎ SÓT BẤT KỲ CÂU NÀO.
+                2. GIẢI ĐỀ: Với mỗi câu hỏi bạn tìm thấy, hãy suy luận đáp án đúng.
+
+                OUTPUT JSON DUY NHẤT (không markdown):
                 {
-                    "title": "Tên bài (ngắn)",
-                    "html": "Nội dung đề bài dạng HTML (giữ nguyên A,B,C,D trong html)",
+                    "title": "Tiêu đề bài tập (ngắn gọn)",
+                    "html": "Nội dung HTML đầy đủ của đề bài (bao gồm cả đề và đáp án để học sinh đọc)",
                     "questions": {
                         "1": { "type": "mcq", "ans": "A" },
                         "2": { "type": "fill", "ans": "word" }
                     }
                 }
-                LƯU Ý: 'ans' phải là đáp án đúng.
+                
+                Lưu ý quan trọng: 
+                - Trường 'html' KHÔNG ĐƯỢC ĐỂ TRỐNG. Phải chứa nội dung đề bài để hiển thị lên web.
+                - Trường 'ans' phải là đáp án đúng.
             `;
 
             const payload = { contents: [{ parts: [ { text: promptText }, { inline_data: { mime_type: file.type, data: base64String } } ] }] };
@@ -208,8 +210,16 @@
                 const textResponse = data.candidates[0].content.parts[0].text;
                 const result = JSON.parse(textResponse.replace(/```json|```/g, '').trim());
 
+                // Điền dữ liệu vào web
                 if(result.title) document.getElementById('a-title').value = result.title;
-                quill.root.innerHTML = result.html; 
+                
+                // Kiểm tra xem HTML có nội dung không
+                if(result.html && result.html.length > 10) {
+                    quill.root.innerHTML = result.html; 
+                } else {
+                    quill.root.innerHTML = "<p style='color:red'>⚠️ AI không trả về nội dung đề bài. Vui lòng thử lại hoặc tự copy đề vào đây.</p>";
+                }
+                
                 resetKey();
                 if(result.questions) {
                     Object.keys(result.questions).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(num => {
@@ -223,7 +233,7 @@
                 status.innerHTML = `<span style="color:#c62828">❌ Lỗi: ${error.message}</span>`;
             } finally {
                 btn.classList.remove('loading');
-                btn.innerHTML = `<i class="fas fa-sparkles"></i> Tải Ảnh & Giải Đề`;
+                btn.innerHTML = `<i class="fas fa-file-alt"></i> Tải Ảnh & Giải Đề`;
                 btn.disabled = false;
             }
         };
