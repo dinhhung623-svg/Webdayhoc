@@ -3,96 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bài Tập Điền Từ</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
+    <title>Làm Bài Thi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Nunito', sans-serif; background: #dfe6e9; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
+        body { font-family: 'Inter', sans-serif; background: #f4f6f8; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
         
-        /* CARD ĐOẠN VĂN */
-        .passage-card {
-            background: white; padding: 30px; border-radius: 12px;
-            font-family: 'Times New Roman', serif; font-size: 1.3em; line-height: 2;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px;
-        }
-
-        /* Ô TRỐNG (DROP ZONE) */
-        .cloze-gap {
-            display: inline-block;
-            min-width: 80px; height: 30px;
-            border-bottom: 2px solid #6c5ce7;
-            background: #f1f2f6;
-            margin: 0 5px; text-align: center;
-            color: #6c5ce7; font-weight: bold; cursor: pointer;
-            vertical-align: middle; transition: 0.2s;
-            border-radius: 4px; padding: 0 10px;
-        }
-        .cloze-gap.active { background: #ffeaa7; border-color: #fdcb6e; transform: scale(1.1); }
-        .cloze-gap.filled { background: #6c5ce7; color: white; border: none; }
-
-        /* KHU VỰC ĐÁP ÁN (DRAGGABLE) */
-        .options-bank {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: white; padding: 20px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
-            display: flex; gap: 10px; overflow-x: auto; z-index: 1000;
-            align-items: center;
-        }
+        .q-card { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .q-text { font-size: 1.1em; margin-bottom: 15px; color: #333; font-weight: 500; }
         
-        .drag-item {
-            background: white; border: 2px solid #a29bfe; color: #6c5ce7;
-            padding: 10px 15px; border-radius: 20px;
-            cursor: grab; white-space: nowrap; font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s;
-        }
-        .drag-item:active { cursor: grabbing; transform: scale(0.95); }
+        /* MCQ STYLES */
+        .options-container { display: flex; flex-wrap: wrap; gap: 10px; }
+        .opt-btn { background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 10px 15px; cursor: pointer; flex: 1 1 40%; transition: 0.2s; }
+        .opt-btn:hover { background: #f9f9f9; border-color: #999; }
+        .opt-btn.selected { background: #e3f2fd; border-color: #2196f3; color: #1565c0; font-weight: bold; }
         
-        /* Khi đang được chọn để điền */
-        .drag-item.selected { background: #6c5ce7; color: white; border-color: #6c5ce7; transform: scale(1.1); }
+        /* ESSAY STYLES */
+        .essay-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 1em; box-sizing: border-box; min-height: 80px; resize: vertical; }
+        .essay-input:focus { border-color: #2196f3; outline: none; }
 
         #dashboard { text-align: center; margin-top: 50px; }
         .hidden { display: none; }
-        .btn-main { background: #0984e3; color: white; padding: 10px 20px; border:none; border-radius:5px; cursor:pointer; }
+        .btn-main { background: #2196f3; color: white; padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="dashboard">
-    <h2>CHỌN BÀI THI</h2>
+    <h2>VÀO THI</h2>
     <select id="class-select" onchange="loadTests()"><option>-- Chọn lớp --</option></select>
-    <div id="test-list" style="margin-top:20px; max-width:500px; margin-left:auto; margin-right:auto;"></div>
-    <div id="student-info" class="hidden" style="margin-top:20px;">
-        <input id="name" placeholder="Tên của bạn..." style="padding:10px">
+    <div id="test-list"></div>
+    <div id="student-info" class="hidden">
+        <input id="name" placeholder="Họ tên..." style="padding:10px; margin-top:10px">
         <button class="btn-main" onclick="startExam()">LÀM BÀI</button>
     </div>
 </div>
 
 <div id="exam-app" class="hidden container">
     <h2 id="exam-title"></h2>
-    
-    <div id="passage-container" class="passage-card"></div>
-    
-    <div id="options-bank" class="options-bank">
-        <div style="font-weight:bold; color:#ccc; margin-right:10px;">KÉO THẢ HOẶC CHỌN:</div>
-        </div>
-    
-    <button onclick="submit()" style="position:fixed; top:20px; right:20px; background:#e17055; color:white; border:none; padding:10px 20px; border-radius:30px; cursor:pointer; font-weight:bold">NỘP BÀI</button>
+    <div id="questions-list"></div>
+    <button class="btn-main" onclick="submit()" style="margin-top:20px; background:#d32f2f">NỘP BÀI</button>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
     
     const app = initializeApp({ apiKey: "AIzaSyDjSb3byp5-SMUdJU5XDnGXwKEUOLXI6JE", databaseURL: "https://lophoconl-default-rtdb.asia-southeast1.firebasedatabase.app" });
     const db = getDatabase(app);
     let curData = null, curClass = null, curAss = null;
-    let selectedGap = null; // Ô trống đang được chọn
-    let answersState = {}; // Lưu đáp án học sinh chọn { "6": "However", ... }
 
-    // --- SETUP CHUNG ---
     onValue(ref(db, 'classes'), snap => {
         const s = document.getElementById('class-select'); s.innerHTML = '<option>-- Chọn lớp --</option>';
         const d = snap.val(); if(d) Object.keys(d).forEach(k => s.innerHTML += `<option value="${k}">${d[k].name}</option>`);
@@ -105,134 +65,76 @@
             const d = snap.val();
             if(d) Object.keys(d).reverse().forEach(k => {
                 const div = document.createElement('div');
-                div.innerHTML = `<div style="background:white; padding:15px; margin-bottom:5px; border-radius:5px; cursor:pointer">${d[k].title}</div>`;
+                div.innerHTML = `<div style="background:white; padding:15px; margin:10px auto; max-width:500px; cursor:pointer">${d[k].title}</div>`;
                 div.onclick = () => { curData = JSON.parse(d[k].data); curAss = k; document.getElementById('student-info').classList.remove('hidden'); };
                 l.appendChild(div);
             });
         });
     }
 
-    // --- LOGIC BÀI ĐIỀN TỪ ---
     window.startExam = () => {
-        if(!document.getElementById('name').value) return alert("Nhập tên!");
         document.getElementById('dashboard').classList.add('hidden');
         document.getElementById('exam-app').classList.remove('hidden');
-        document.getElementById('exam-title').innerText = "Bài Điền Từ";
-
-        // 1. Render Đoạn văn
-        const passageBox = document.getElementById('passage-container');
-        let html = curData.passage;
         
-        // Thay thế (6)____ hoặc [6] bằng ô trống HTML
-        html = html.replace(/(\(\d+\)_{2,}|\[\d+\])/g, (match) => {
-            // Lấy số câu hỏi: (6)____ -> 6
-            const num = match.match(/\d+/)[0];
-            return `<span class="cloze-gap" id="gap-${num}" onclick="activateGap('${num}')" ondrop="drop(event, '${num}')" ondragover="allowDrop(event)">(${num})</span>`;
-        });
-        passageBox.innerHTML = html;
-
-        // 2. Render Ngân hàng đáp án (Tất cả đáp án của tất cả câu hỏi)
-        const bank = document.getElementById('options-bank');
-        // Gom tất cả options lại, hoặc hiển thị theo nhóm.
-        // Cách tốt nhất: Khi click vào ô (6), chỉ hiện đáp án của câu 6.
-        // Nhưng yêu cầu là "Kéo thả", nên ta sẽ hiện tất cả options của câu đang chọn?
-        // -> UX Tốt nhất: Click vào ô trống -> Hiện các options tương ứng ở dưới để chọn.
-        
-        renderOptionsForGap(null); // Ban đầu chưa hiện gì hoặc hiện hướng dẫn
-    }
-
-    // --- TƯƠNG TÁC KÉO THẢ & CLICK ---
-    window.activateGap = (num) => {
-        // Highlight ô trống
-        document.querySelectorAll('.cloze-gap').forEach(g => g.classList.remove('active'));
-        document.getElementById(`gap-${num}`).classList.add('active');
-        selectedGap = num;
-
-        // Hiển thị các đáp án của câu hỏi này ở dưới thanh Bank
-        renderOptionsForGap(num);
-    }
-
-    function renderOptionsForGap(num) {
-        const bank = document.getElementById('options-bank');
-        bank.innerHTML = "";
-        
-        if(!num) {
-            bank.innerHTML = "<div style='color:#777'><i>Bấm vào ô trống trong bài đọc để hiện đáp án...</i></div>";
-            return;
-        }
-
-        const qData = curData.questions[num];
-        if(!qData) return;
-
-        // Render các nút A, B, C, D
-        qData.options.forEach(opt => {
-            // opt: "A. However"
-            const div = document.createElement('div');
-            div.className = 'drag-item';
-            div.draggable = true;
-            div.innerText = opt;
+        const cont = document.getElementById('questions-list');
+        Object.keys(curData).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(num => {
+            const q = curData[num];
+            const card = document.createElement('div'); card.className = 'q-card';
             
-            // Sự kiện Drag (Kéo)
-            div.ondragstart = (e) => {
-                e.dataTransfer.setData("text", opt);
-                selectedGap = num; // Đánh dấu đang kéo cho câu này
-            };
-
-            // Sự kiện Click (Dành cho Mobile)
-            div.onclick = () => {
-                fillGap(num, opt);
-            };
-
-            bank.appendChild(div);
+            let html = `<div class="q-text"><b>Câu ${num}:</b> ${q.content}</div>`;
+            
+            // Xử lý hiển thị theo loại câu hỏi
+            if(q.type === 'mcq') {
+                html += `<div class="options-container" id="opts-${num}" data-ans="">`;
+                q.options.forEach(opt => {
+                    const val = opt.split('.')[0].trim(); 
+                    html += `<div class="opt-btn" onclick="select('${num}', '${val}', this)">${opt}</div>`;
+                });
+                html += `</div>`;
+            } else {
+                // Tự luận (Essay)
+                html += `<textarea class="essay-input" id="essay-${num}" placeholder="Nhập câu trả lời của bạn..."></textarea>`;
+            }
+            
+            card.innerHTML = html;
+            cont.appendChild(card);
         });
     }
 
-    // Xử lý khi thả (Drop) hoặc Click chọn
-    window.allowDrop = (e) => e.preventDefault();
-    window.drop = (e, num) => {
-        e.preventDefault();
-        const data = e.dataTransfer.getData("text");
-        fillGap(num, data);
-    }
-
-    function fillGap(num, text) {
-        // Lấy chữ cái đầu (A, B...) hoặc text ngắn gọn để điền vào ô
-        // const shortText = text.split('.')[1] ? text.split('.')[1].trim() : text;
-        
-        // Điền vào ô
-        const gap = document.getElementById(`gap-${num}`);
-        gap.innerText = text; // Hiển thị đầy đủ hoặc rút gọn tùy ý
-        gap.classList.add('filled');
-        gap.classList.remove('active');
-
-        // Lưu kết quả
-        answersState[num] = text.split('.')[0]; // Lưu "A", "B"...
+    window.select = (num, val, elem) => {
+        const parent = document.getElementById(`opts-${num}`);
+        parent.setAttribute('data-ans', val);
+        parent.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+        elem.classList.add('selected');
     }
 
     window.submit = () => {
         if(!confirm("Nộp bài?")) return;
-        let correct = 0, total = 0, log = "";
+        const name = document.getElementById('name').value;
+        let log = "";
+        let correctCount = 0; // Chỉ tính điểm trắc nghiệm tự động
         
-        Object.keys(curData.questions).forEach(num => {
-            const q = curData.questions[num]; // {correct: "A", ...}
-            // q.correct thường chỉ là "A". Nhưng đáp án lưu là "A" (do split ở trên).
-            // So sánh:
-            if(answersState[num] === q.correct) correct++;
-            total++;
-            log += `${num}:${answersState[num] || "_"} `;
+        Object.keys(curData).forEach(num => {
+            const q = curData[num];
+            let ans = "";
+            
+            if(q.type === 'mcq') {
+                ans = document.getElementById(`opts-${num}`).getAttribute('data-ans') || "";
+                if(ans === q.correct) correctCount++;
+            } else {
+                ans = document.getElementById(`essay-${num}`).value; // Lấy nội dung tự luận
+            }
+            log += `[Câu ${num}: ${ans}] `;
         });
-
-        const percent = Math.round((correct/total)*100);
-        alert(`Bạn đúng ${correct}/${total} câu (${percent}%)`);
         
         push(ref(db, `answers/${curClass}/${curAss}`), {
-            name: document.getElementById('name').value,
-            score: `${correct}/${total}`,
-            log: log,
+            name: name, 
+            score: `Trắc nghiệm: ${correctCount} điểm`, 
+            log: log, 
             timestamp: Date.now()
         });
-        
-        if(percent >= 50) confetti();
+        alert("Đã nộp bài! Giáo viên sẽ chấm phần tự luận.");
+        location.reload();
     }
 </script>
 </body>
