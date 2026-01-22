@@ -3,35 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giáo Viên - AI Tách Đề (V24.1)</title>
+    <title>Giáo Viên - Hybrid Mode</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; margin: 0; background: #f0f2f5; }
-        .sidebar { width: 280px; background: #2c3e50; color: white; display: flex; flex-direction: column; }
-        .class-item { padding: 12px; margin: 5px; background: #34495e; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between; color: white; transition: 0.2s;}
+        
+        /* SIDEBAR */
+        .sidebar { width: 260px; background: #2c3e50; color: white; display: flex; flex-direction: column; flex-shrink: 0; }
+        .class-item { padding: 12px 15px; margin: 5px 10px; background: #34495e; border-radius: 6px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
         .class-item:hover { background: #16a085; }
-        .class-item.active { background: #e67e22; font-weight: bold; border-left: 5px solid white; } /* Hiệu ứng đã chọn */
+        .class-item.active { background: #27ae60; font-weight: bold; border-left: 4px solid #fff; }
         
+        /* MAIN CONTENT */
         .main-content { flex: 1; padding: 30px; overflow-y: auto; background: #ecf0f1; }
-        .editor-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 1000px; margin: 0 auto 30px auto; }
-        .ai-section { background: #e8f5e9; padding: 20px; border-radius: 12px; border: 1px solid #a5d6a7; margin-bottom: 25px; text-align: center; }
-        .btn-ai { background: #43a047; color: white; padding: 12px 40px; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 1.1em; transition: 0.3s; }
-        .btn-ai:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(67, 160, 71, 0.3); }
-        .btn-ai:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
 
-        #ai-status { margin-top: 15px; color: #1b5e20; font-weight: 500; }
-        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .btn-primary { background: #2c3e50; color: white; padding: 15px; width: 100%; font-weight: bold; border:none; cursor: pointer; margin-top:15px; border-radius: 6px; font-size: 1.1em; }
-        .btn-primary:hover { background: #34495e; }
+        /* TABS CHUYỂN CHẾ ĐỘ */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .tab-btn {
+            padding: 10px 20px; border: none; background: #eee; border-radius: 20px;
+            cursor: pointer; font-weight: bold; color: #555; transition: 0.3s; display: flex; align-items: center; gap: 8px;
+        }
+        .tab-btn.active { background: #2980b9; color: white; box-shadow: 0 4px 10px rgba(41, 128, 185, 0.3); }
+        .tab-btn:hover:not(.active) { background: #ddd; }
 
-        #editor-container { height: 250px; background: white; font-family: 'Times New Roman', serif; font-size: 1.1em; }
-        .key-row { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; background: #fafafa; padding: 15px; border: 1px solid #eee; border-radius: 8px; flex-direction: column; }
-        .opt-tag { background: #e3f2fd; color: #1565c0; padding: 4px 10px; border-radius: 15px; font-size: 0.9em; border: 1px solid #bbdefb; margin-right: 5px; margin-bottom: 5px; display: inline-block; }
+        /* --- MANUAL MODE STYLES --- */
+        .manual-card {
+            border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 15px;
+            background: #fafafa; position: relative;
+        }
+        .manual-card h4 { margin: 0 0 10px 0; color: #2c3e50; }
+        .q-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px; box-sizing: border-box; }
         
-        /* Highlight khi chưa chọn lớp */
-        .blink-border { animation: blink 1s infinite; border: 2px solid red; }
-        @keyframes blink { 50% { border-color: transparent; } }
+        .options-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .opt-row { display: flex; align-items: center; gap: 5px; }
+        .opt-label { font-weight: bold; width: 20px; }
+        
+        .btn-del-q {
+            position: absolute; top: 10px; right: 10px; background: #ffcdd2; color: #c62828;
+            border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+        }
+
+        /* --- AI MODE STYLES --- */
+        .ai-box { background: #e8f5e9; padding: 20px; border-radius: 8px; border: 1px dashed #43a047; text-align: center; }
+        #editor-container { height: 200px; background: white; margin-bottom: 15px; }
+        .key-row { background: white; padding: 10px; border-bottom: 1px solid #eee; }
+
+        /* COMMON */
+        .btn-add { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-save { background: #d35400; color: white; padding: 15px; width: 100%; border: none; border-radius: 8px; font-weight: bold; font-size: 1.1em; cursor: pointer; margin-top: 20px; }
         .hidden { display: none; }
     </style>
 </head>
@@ -40,45 +62,49 @@
 <div class="sidebar">
     <div style="padding:20px; background:#1a252f; color:white;"><h3><i class="fas fa-chalkboard-teacher"></i> Giáo Viên</h3></div>
     <div id="class-list" style="padding:10px;"></div>
-    <button onclick="addClass()" style="width:100%; padding:15px; background:#d35400; border:none; color:white; font-weight:bold; cursor:pointer;">+ Thêm Lớp Mới</button>
+    <div style="padding:10px">
+        <button onclick="addClass()" style="width:100%; padding:12px; background:#e67e22; border:none; color:white; font-weight:bold; border-radius:4px; cursor:pointer">+ Lớp Mới</button>
+    </div>
 </div>
 
 <div class="main-content">
-    <div id="welcome-msg" style="text-align:center; color:#7f8c8d; margin-top: 100px;">
-        <h2>⬅️ Vui lòng chọn một Lớp ở cột bên trái để bắt đầu</h2>
+    <div id="welcome-msg" style="text-align:center; margin-top:100px; color:#7f8c8d;">
+        <h2>⬅️ Chọn lớp để bắt đầu soạn đề</h2>
     </div>
 
-    <div id="manager" class="hidden">
-        <h2 style="color:#2c3e50; border-bottom: 2px solid #ddd; padding-bottom: 10px;">
-            Lớp đang chọn: <span id="class-name" style="color:#e67e22">...</span>
-        </h2>
-        
-        <div class="editor-box">
-            <h3 style="margin-top:0; color:#2e7d32;"><i class="fas fa-file-word"></i> 1. Nhập đề thi (Copy từ Word/PDF)</h3>
-            <p style="color:#666; font-size:0.9em">Dán toàn bộ nội dung câu hỏi và đáp án vào khung dưới đây.</p>
-            <div id="editor-container"></div>
-            
-            <div class="ai-section" style="margin-top: 20px;">
-                <input type="text" id="gemini-key-input" placeholder="Dán API Key Google Gemini vào đây (Nếu chưa lưu)" style="margin-bottom:10px;">
-                <button id="btn-ai-trigger" class="btn-ai" onclick="processTextDetailed()">
-                    <i class="fas fa-magic"></i> AI Tách & Giải Đề Ngay
-                </button>
-                <div id="ai-status">Sẵn sàng. Hãy dán đề và bấm nút trên.</div>
-            </div>
+    <div id="manager" class="hidden container">
+        <h2 style="margin-top:0; color:#2c3e50;">Soạn Đề Thi: <span id="class-name" style="color:#e67e22">...</span></h2>
+        <input type="text" id="a-title" class="q-input" placeholder="Nhập tên bài thi (VD: Kiểm tra 1 tiết)..." style="font-weight:bold; font-size:1.1em;">
 
-            <h3 style="color:#2980b9; margin-top:30px;"><i class="fas fa-save"></i> 2. Lưu bài tập</h3>
-            <input type="text" id="a-title" placeholder="Nhập tiêu đề bài tập (Ví dụ: Kiểm tra 15 phút)">
-            
-            <div style="margin-top: 20px;">
-                <label><b>✅ Kết quả phân tích (Review):</b></label>
-                <div id="key-container" style="margin-top:10px; border:1px solid #ddd; padding:15px; max-height:400px; overflow-y:auto; background:#f9f9f9; border-radius:6px;">
-                    <div style="text-align:center; color:#999; padding: 20px;">Chưa có dữ liệu. Hãy bấm nút AI ở trên.</div>
-                </div>
-            </div>
-
-            <button class="btn-primary" onclick="addAssignment()">LƯU BÀI TẬP VÀO LỚP NÀY</button>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchMode('manual')" id="tab-manual">
+                <i class="fas fa-keyboard"></i> Tự Soạn (Thủ Công)
+            </button>
+            <button class="tab-btn" onclick="switchMode('ai')" id="tab-ai">
+                <i class="fas fa-robot"></i> Dùng AI (Tự Động)
+            </button>
         </div>
+
+        <div id="mode-manual">
+            <div id="manual-questions-list"></div>
+            <button class="btn-add" onclick="addManualCard()"><i class="fas fa-plus"></i> Thêm câu hỏi</button>
+        </div>
+
+        <div id="mode-ai" class="hidden">
+            <div class="ai-box">
+                <input type="text" id="gemini-key" class="q-input" placeholder="API Key Google Gemini (Nếu chưa có)">
+                <div id="editor-container"></div>
+                <button class="btn-add" onclick="processAI()" id="btn-ai-run">
+                    <i class="fas fa-bolt"></i> Phân Tích Đề Ngay
+                </button>
+                <div id="ai-status" style="margin-top:10px; color:#2e7d32">Dán đề vào khung trên rồi bấm nút.</div>
+            </div>
+            <div id="ai-preview" style="margin-top:15px; border:1px solid #eee; max-height:300px; overflow-y:auto; display:none"></div>
+        </div>
+
+        <button class="btn-save" onclick="saveAssignment()">LƯU BÀI TẬP</button>
         
+        <hr>
         <h3>Danh sách bài đã tạo:</h3>
         <div id="list"></div>
     </div>
@@ -94,154 +120,164 @@
     const db = getDatabase(app);
     
     let curClass = null;
-    let extractedData = {}; 
+    let currentMode = 'manual'; // 'manual' hoặc 'ai'
+    let aiData = {}; // Dữ liệu từ AI
+    let manualCount = 0; // Đếm số câu hỏi thủ công
 
-    var quill = new Quill('#editor-container', { 
-        theme: 'snow', 
-        placeholder: 'Ví dụ:\nCâu 1: Thủ đô của Việt Nam là?\nA. Hà Nội\nB. Huế\nC. Đà Nẵng\nD. Sài Gòn' 
-    });
+    var quill = new Quill('#editor-container', { theme: 'snow', placeholder: 'Dán nội dung đề thi vào đây...' });
 
-    // --- CHỌN LỚP ---
-    window.selectClass = (k, name, el) => {
-        curClass = k;
-        document.getElementById('welcome-msg').classList.add('hidden');
-        document.getElementById('manager').classList.remove('hidden');
-        document.getElementById('class-name').innerText = name;
+    // --- TAB SWITCHING ---
+    window.switchMode = (mode) => {
+        currentMode = mode;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`tab-${mode}`).classList.add('active');
         
-        // Highlight class item
-        document.querySelectorAll('.class-item').forEach(i => i.classList.remove('active'));
-        if(el) el.classList.add('active');
-        
-        loadAss(k);
+        if(mode === 'manual') {
+            document.getElementById('mode-manual').classList.remove('hidden');
+            document.getElementById('mode-ai').classList.add('hidden');
+        } else {
+            document.getElementById('mode-manual').classList.add('hidden');
+            document.getElementById('mode-ai').classList.remove('hidden');
+        }
     }
 
-    // --- LOGIC AI TÁCH ĐỀ (MODEL FLASH 1.5 ỔN ĐỊNH) ---
-    window.processTextDetailed = async () => {
-        let key = document.getElementById('gemini-key-input').value.trim();
-        if(!key) key = localStorage.getItem("MY_GEMINI_KEY");
-        if(!key) return alert("⚠️ Vui lòng nhập API Key Google Gemini!");
-        localStorage.setItem("MY_GEMINI_KEY", key);
-
-        const text = quill.getText().trim();
-        if(text.length < 10) return alert("⚠️ Vui lòng dán nội dung đề thi vào khung soạn thảo!");
-
-        const btn = document.getElementById('btn-ai-trigger');
-        const status = document.getElementById('ai-status');
-        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang phân tích...`; 
-        btn.disabled = true;
-        status.innerHTML = `<span style="color:#d35400">Đang đọc đề & tách đáp án A,B,C,D... (Vui lòng đợi)</span>`;
-
-        // Prompt yêu cầu tách options
-        const prompt = `
-            Phân tích văn bản đề thi sau và chuyển thành JSON.
-            Nhiệm vụ: Tách riêng nội dung câu hỏi và 4 đáp án (A, B, C, D) để hiển thị lên nút bấm.
+    // --- LOGIC THỦ CÔNG (MANUAL) ---
+    window.addManualCard = () => {
+        manualCount++;
+        const container = document.getElementById('manual-questions-list');
+        const div = document.createElement('div');
+        div.className = 'manual-card';
+        div.id = `m-card-${manualCount}`;
+        div.innerHTML = `
+            <button class="btn-del-q" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            <h4>Câu hỏi số ${manualCount}</h4>
+            <textarea class="q-input" id="q-content-${manualCount}" rows="2" placeholder="Nhập nội dung câu hỏi..."></textarea>
             
-            ĐỀ BÀI: """${text}"""
+            <div class="options-group">
+                <div class="opt-row"><span class="opt-label">A.</span> <input class="q-input" id="opt-A-${manualCount}" placeholder="Đáp án A"></div>
+                <div class="opt-row"><span class="opt-label">B.</span> <input class="q-input" id="opt-B-${manualCount}" placeholder="Đáp án B"></div>
+                <div class="opt-row"><span class="opt-label">C.</span> <input class="q-input" id="opt-C-${manualCount}" placeholder="Đáp án C"></div>
+                <div class="opt-row"><span class="opt-label">D.</span> <input class="q-input" id="opt-D-${manualCount}" placeholder="Đáp án D"></div>
+            </div>
             
-            OUTPUT JSON FORMAT:
-            {
-                "title": "Tên bài thi (tự đặt dựa trên nội dung)",
-                "questions": {
-                    "1": { 
-                        "content": "Nội dung câu hỏi (không chứa đáp án)", 
-                        "options": ["A. Đáp án 1", "B. Đáp án 2", "C. Đáp án 3", "D. Đáp án 4"], 
-                        "correct": "A" 
-                    },
-                    "2": { ... }
-                }
-            }
-            Lưu ý: "correct" là đáp án đúng (A, B, C, hoặc D) mà bạn suy luận được.
+            <div style="margin-top:10px; display:flex; align-items:center; gap:10px;">
+                <label style="font-weight:bold; color:#2c3e50">Đáp án đúng:</label>
+                <select id="correct-${manualCount}" style="width:100px; padding:5px;">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                </select>
+            </div>
         `;
+        container.appendChild(div);
+    }
 
+    // --- LOGIC AI ---
+    window.processAI = async () => {
+        let key = document.getElementById('gemini-key').value.trim() || localStorage.getItem("MY_GEMINI_KEY");
+        if(!key) return alert("Nhập API Key!");
+        localStorage.setItem("MY_GEMINI_KEY", key);
+        
+        const text = quill.getText();
+        if(text.length < 10) return alert("Chưa có nội dung đề!");
+
+        document.getElementById('btn-ai-run').innerHTML = "Đang xử lý...";
+        
+        const prompt = `Phân tích đề này và trả về JSON: """${text}"""
+        OUTPUT JSON: {"questions": {"1": {"content": "...", "options": ["A. ...", "B. ...", "C. ...", "D. ..."], "correct": "A"}, "2": {...}}}`;
+        
         try {
-            // Dùng model 1.5-flash cho nhanh và ổn định
-            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${key}`, {
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
             });
-            
-            if(!resp.ok) throw new Error("Lỗi kết nối Google API (Check Key hoặc Mạng)");
-            
-            const data = await resp.json();
-            const jsonStr = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+            const d = await resp.json();
+            const jsonStr = d.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
             const result = JSON.parse(jsonStr);
-
-            document.getElementById('a-title').value = result.title || "Bài tập mới";
-            extractedData = result.questions;
+            aiData = result.questions;
             
-            // Render Review
-            const cont = document.getElementById('key-container');
-            cont.innerHTML = "";
-            if(!extractedData || Object.keys(extractedData).length === 0) {
-                throw new Error("AI không tìm thấy câu hỏi nào.");
-            }
-
-            Object.keys(extractedData).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(k => {
-                const q = extractedData[k];
-                cont.innerHTML += `
-                    <div class="key-row">
-                        <div style="font-weight:bold; color:#333; margin-bottom:5px;">Câu ${k}: ${q.content}</div>
-                        <div>
-                            ${q.options.map(o => `<span class="opt-tag">${o}</span>`).join('')}
-                        </div>
-                        <div style="margin-top:5px; color:#27ae60; font-size:0.9em"><i class="fas fa-check-circle"></i> Đáp án đúng: <b>${q.correct}</b></div>
-                    </div>`;
+            // Render Preview
+            const pre = document.getElementById('ai-preview');
+            pre.style.display = 'block';
+            pre.innerHTML = "";
+            Object.keys(aiData).forEach(k => {
+                pre.innerHTML += `<div class="key-row"><b>Câu ${k}:</b> ${aiData[k].content.substring(0,50)}... (Đúng: ${aiData[k].correct})</div>`;
             });
-            status.innerHTML = `<span style="color:#27ae60; font-weight:bold">✅ Đã tách thành công ${Object.keys(extractedData).length} câu! Hãy bấm Lưu.</span>`;
-        } catch (e) {
-            console.error(e);
-            alert("Lỗi: " + e.message);
-            status.innerHTML = `<span style="color:red">❌ Lỗi: ${e.message}</span>`;
-        } finally {
-            btn.innerHTML = `<i class="fas fa-magic"></i> AI Tách & Giải Đề Ngay`; 
-            btn.disabled = false;
-        }
+            document.getElementById('ai-status').innerHTML = "✅ Đã tách xong!";
+        } catch(e) { alert("Lỗi AI: " + e.message); }
+        finally { document.getElementById('btn-ai-run').innerHTML = '<i class="fas fa-bolt"></i> Phân Tích Đề Ngay'; }
     }
 
-    // --- LƯU BÀI (CÓ CHECK LỖI KỸ) ---
-    window.addAssignment = () => {
-        // Check 1: Chưa chọn lớp
-        if(!curClass) {
-            alert("❌ BẠN CHƯA CHỌN LỚP!\nVui lòng bấm vào tên lớp ở cột bên trái.");
-            document.querySelector('.sidebar').classList.add('blink-border');
-            setTimeout(() => document.querySelector('.sidebar').classList.remove('blink-border'), 2000);
-            return;
+    // --- LƯU BÀI TẬP ---
+    window.saveAssignment = () => {
+        if(!curClass) return alert("Chưa chọn lớp!");
+        const title = document.getElementById('a-title').value.trim();
+        if(!title) return alert("Chưa nhập tên bài thi!");
+
+        let finalData = {};
+
+        if(currentMode === 'manual') {
+            // Lấy dữ liệu từ form thủ công
+            const cards = document.querySelectorAll('.manual-card');
+            if(cards.length === 0) return alert("Chưa có câu hỏi nào!");
+            
+            cards.forEach((card, index) => {
+                const num = index + 1;
+                // Lấy ID gốc từ element để tìm đúng input con
+                const idSuffix = card.id.split('-')[2]; 
+                
+                const content = document.getElementById(`q-content-${idSuffix}`).value;
+                const optA = document.getElementById(`opt-A-${idSuffix}`).value;
+                const optB = document.getElementById(`opt-B-${idSuffix}`).value;
+                const optC = document.getElementById(`opt-C-${idSuffix}`).value;
+                const optD = document.getElementById(`opt-D-${idSuffix}`).value;
+                const correct = document.getElementById(`correct-${idSuffix}`).value;
+
+                if(content) {
+                    finalData[num] = {
+                        content: content,
+                        options: [`A. ${optA}`, `B. ${optB}`, `C. ${optC}`, `D. ${optD}`],
+                        correct: correct
+                    };
+                }
+            });
+        } else {
+            // Lấy dữ liệu từ AI
+            if(Object.keys(aiData).length === 0) return alert("Chưa có dữ liệu AI!");
+            finalData = aiData;
         }
 
-        // Check 2: Chưa có data
-        if(Object.keys(extractedData).length === 0) {
-            alert("❌ CHƯA CÓ DỮ LIỆU ĐỀ THI!\nBạn hãy dán đề vào khung và bấm nút 'AI Tách & Giải Đề' màu xanh trước đã.");
-            return;
-        }
+        if(Object.keys(finalData).length === 0) return alert("Dữ liệu rỗng!");
 
-        const title = document.getElementById('a-title').value || "Bài tập không tên";
-        
         push(ref(db, `assignments/${curClass}`), {
             title: title,
-            data: JSON.stringify(extractedData), // Lưu full cấu trúc
+            data: JSON.stringify(finalData),
             timestamp: Date.now()
-        }).then(() => {
-            alert("✅ Đã lưu bài tập thành công!");
-            // Reset
-            quill.setText(""); 
-            document.getElementById('key-container').innerHTML = "<div style='text-align:center;color:#999;padding:20px'>Đã lưu xong. Sẵn sàng cho bài mới.</div>"; 
-            extractedData = {};
-            document.getElementById('a-title').value = "";
-        }).catch(err => alert("Lỗi lưu DB: " + err));
+        });
+        
+        alert("Đã lưu thành công!");
+        location.reload(); // Reset form cho sạch
     }
 
     // --- QUẢN LÝ LỚP ---
-    window.addClass = () => { const n = prompt("Nhập tên lớp mới:"); if(n) push(ref(db, 'classes'), {name: n}); }
+    window.addClass = () => { const n = prompt("Tên lớp:"); if(n) push(ref(db, 'classes'), {name: n}); }
     
     onValue(ref(db, 'classes'), snap => {
         const l = document.getElementById('class-list'); l.innerHTML = "";
         const d = snap.val(); 
         if(d) Object.keys(d).forEach(k => {
-            // Tạo phần tử lớp
-            const div = document.createElement('div');
-            div.className = 'class-item';
-            div.innerHTML = `<span><i class="fas fa-users"></i> ${d[k].name}</span>`;
-            div.onclick = function() { selectClass(k, d[k].name, this); };
+            const div = document.createElement('div'); div.className = 'class-item';
+            div.innerHTML = `<span>${d[k].name}</span>`;
+            div.onclick = () => { 
+                curClass = k; 
+                document.getElementById('welcome-msg').classList.add('hidden');
+                document.getElementById('manager').classList.remove('hidden');
+                document.getElementById('class-name').innerText = d[k].name;
+                document.querySelectorAll('.class-item').forEach(i=>i.classList.remove('active'));
+                div.classList.add('active');
+                loadAss(k);
+            };
             l.appendChild(div);
         });
     });
@@ -250,21 +286,16 @@
         onValue(ref(db, `assignments/${k}`), snap => {
             const l = document.getElementById('list'); l.innerHTML = "";
             const d = snap.val(); 
-            if(!d) { l.innerHTML = "<p>Chưa có bài tập nào.</p>"; return; }
-            
+            if(!d) return; 
             Object.keys(d).reverse().forEach(aid => {
-                l.innerHTML += `
-                <div style="background:white; padding:15px; margin-bottom:10px; border-radius:8px; border-left:4px solid #3498db; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.05)">
-                    <div>
-                        <div style="font-weight:bold; font-size:1.1em">${d[aid].title}</div>
-                        <div style="color:#7f8c8d; font-size:0.85em"><i class="far fa-clock"></i> ${new Date(d[aid].timestamp).toLocaleString()}</div>
-                    </div>
-                    <button onclick="delAss('${k}','${aid}')" style="color:#e74c3c; border:1px solid #e74c3c; background:none; padding:5px 10px; border-radius:4px; cursor:pointer"><i class="fas fa-trash"></i> Xóa</button>
+                l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between">
+                    <b>${d[aid].title}</b> 
+                    <button onclick="delAss('${k}','${aid}')" style="color:red;border:none;background:none;cursor:pointer"><i class="fas fa-trash"></i></button>
                 </div>`;
             });
         });
     }
-    window.delAss = (c, a) => { if(confirm("Bạn chắc chắn muốn xóa bài này?")) remove(ref(db, `assignments/${c}/${a}`)); }
+    window.delAss = (c, a) => { if(confirm("Xóa?")) remove(ref(db, `assignments/${c}/${a}`)); }
 </script>
 </body>
 </html>
